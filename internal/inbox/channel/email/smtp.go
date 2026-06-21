@@ -106,6 +106,10 @@ func NewSmtpPool(configs []imodels.SMTPConfig, oauth *imodels.OAuthConfig) ([]*s
 
 // Send sends an email using one of the configured SMTP servers.
 func (e *Email) Send(m models.OutboundMessage) error {
+	if e.provider == imodels.ProviderResend {
+		return e.sendViaResend(m)
+	}
+
 	// Refresh OAuth token if needed
 	oauthConfig, _, err := e.refreshOAuthIfNeeded()
 	if err != nil {

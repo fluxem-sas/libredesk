@@ -49,15 +49,20 @@ const submitForm = (values) => {
 
   if (inbox.value.channel === 'email') {
     const config = {
+      provider: values.provider || 'manual',
       auth_type: values.auth_type,
       reply_to: values.reply_to,
-      enable_plus_addressing: values.enable_plus_addressing,
-      imap: [{ ...values.imap }],
-      smtp: [{ ...values.smtp }]
+      enable_plus_addressing: values.enable_plus_addressing
     }
 
-    if (values.auth_type === AUTH_TYPE_OAUTH2) {
-      config.oauth = values.oauth
+    if (config.provider === 'resend') {
+      config.resend = { ...values.resend }
+    } else {
+      config.imap = [{ ...values.imap }]
+      config.smtp = [{ ...values.smtp }]
+      if (values.auth_type === AUTH_TYPE_OAUTH2) {
+        config.oauth = values.oauth
+      }
     }
 
     payload = {
@@ -66,27 +71,36 @@ const submitForm = (values) => {
       config
     }
 
-    if (payload.config.imap[0].password?.includes('•')) {
-      payload.config.imap[0].password = ''
-    }
+    if (payload.config.provider === 'resend') {
+      if (payload.config.resend.api_key?.includes('•')) {
+        payload.config.resend.api_key = ''
+      }
+      if (payload.config.resend.webhook_secret?.includes('•')) {
+        payload.config.resend.webhook_secret = ''
+      }
+    } else {
+      if (payload.config.imap[0].password?.includes('•')) {
+        payload.config.imap[0].password = ''
+      }
 
-    if (payload.config.auth_type === AUTH_TYPE_OAUTH2) {
-      if (payload.config.oauth.access_token?.includes('•')) {
-        payload.config.oauth.access_token = ''
+      if (payload.config.auth_type === AUTH_TYPE_OAUTH2) {
+        if (payload.config.oauth.access_token?.includes('•')) {
+          payload.config.oauth.access_token = ''
+        }
+        if (payload.config.oauth.client_secret?.includes('•')) {
+          payload.config.oauth.client_secret = ''
+        }
+        if (payload.config.oauth.refresh_token?.includes('•')) {
+          payload.config.oauth.refresh_token = ''
+        }
       }
-      if (payload.config.oauth.client_secret?.includes('•')) {
-        payload.config.oauth.client_secret = ''
-      }
-      if (payload.config.oauth.refresh_token?.includes('•')) {
-        payload.config.oauth.refresh_token = ''
-      }
-    }
 
-    payload.config.smtp.forEach((smtp) => {
-      if (smtp.password?.includes('•')) {
-        smtp.password = ''
-      }
-    })
+      payload.config.smtp.forEach((smtp) => {
+        if (smtp.password?.includes('•')) {
+          smtp.password = ''
+        }
+      })
+    }
   } else if (inbox.value.channel === 'livechat') {
     payload = {
       ...values,
@@ -132,7 +146,9 @@ onMounted(async () => {
       inboxData.smtp = inboxData?.config?.smtp[0]
     }
     inboxData.auth_type = inboxData?.config?.auth_type || AUTH_TYPE_PASSWORD
+    inboxData.provider = inboxData?.config?.provider || (inboxData?.config?.resend ? 'resend' : 'manual')
     inboxData.oauth = inboxData?.config?.oauth || {}
+    inboxData.resend = inboxData?.config?.resend || {}
     inboxData.enable_plus_addressing = inboxData?.config?.enable_plus_addressing || false
     inboxData.reply_to = inboxData?.config?.reply_to || ''
     inbox.value = inboxData

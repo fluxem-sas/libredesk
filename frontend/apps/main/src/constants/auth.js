@@ -5,3 +5,4 @@ export const AUTH_TYPE_OAUTH2 = 'oauth2'
 // OAuth provider constants
 export const PROVIDER_GOOGLE = 'google'
 export const PROVIDER_MICROSOFT = 'microsoft'
+export const PROVIDER_RESEND = 'resend'

@@ -115,6 +115,23 @@ const goBack = () => {
 
 const submitForm = (values) => {
   const channelName = selectedChannel.value.toLowerCase()
+  const config = {
+    provider: values.provider || 'manual',
+    reply_to: values.reply_to,
+    enable_plus_addressing: values.enable_plus_addressing
+  }
+
+  if (config.provider === 'resend') {
+    config.resend = values.resend
+  } else {
+    config.auth_type = values.auth_type
+    config.imap = [values.imap]
+    config.smtp = [values.smtp]
+    if (values.auth_type === 'oauth2') {
+      config.oauth = values.oauth
+    }
+  }
+
   const payload = {
     name: values.name,
     from: values.from,
@@ -123,12 +140,7 @@ const submitForm = (values) => {
     enabled: values.enabled ?? true,
     csat_enabled: values.csat_enabled ?? false,
     prompt_tags_on_reply: values.prompt_tags_on_reply ?? false,
-    config: {
-      reply_to: values.reply_to,
-      enable_plus_addressing: values.enable_plus_addressing,
-      imap: [values.imap],
-      smtp: [values.smtp]
-    }
+    config
   }
   createInbox(payload)
 }

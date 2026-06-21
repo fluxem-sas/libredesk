@@ -15,6 +15,8 @@ import (
 const (
 	AuthTypePassword = "password"
 	AuthTypeOAuth2   = "oauth2"
+	ProviderManual   = "manual"
+	ProviderResend   = "resend"
 )
 
 // Inbox represents a inbox record in DB.
@@ -37,14 +39,22 @@ type Inbox struct {
 
 // Config holds the email inbox configuration with multiple SMTP servers and IMAP clients.
 type Config struct {
-	AuthType             string       `json:"auth_type"` // AuthTypePassword or AuthTypeOAuth2
-	OAuth                *OAuthConfig `json:"oauth"`     // OAuth config when auth_type is "oauth2"
-	SMTP                 []SMTPConfig `json:"smtp"`
-	IMAP                 []IMAPConfig `json:"imap"`
-	From                 string       `json:"from"`
-	FromNameTemplate     string       `json:"from_name_template"`
-	ReplyTo              string       `json:"reply_to"`
-	EnablePlusAddressing bool         `json:"enable_plus_addressing"`
+	AuthType             string        `json:"auth_type"` // AuthTypePassword or AuthTypeOAuth2
+	Provider             string        `json:"provider"`
+	OAuth                *OAuthConfig  `json:"oauth"` // OAuth config when auth_type is "oauth2"
+	Resend               *ResendConfig `json:"resend"`
+	SMTP                 []SMTPConfig  `json:"smtp"`
+	IMAP                 []IMAPConfig  `json:"imap"`
+	From                 string        `json:"from"`
+	FromNameTemplate     string        `json:"from_name_template"`
+	ReplyTo              string        `json:"reply_to"`
+	EnablePlusAddressing bool          `json:"enable_plus_addressing"`
+}
+
+// ResendConfig holds direct Resend provider configuration.
+type ResendConfig struct {
+	APIKey        string `json:"api_key"`
+	WebhookSecret string `json:"webhook_secret"`
 }
 
 // OAuthConfig holds OAuth 2.0 authentication details.
@@ -128,6 +138,12 @@ func (m *Inbox) ClearPasswords() error {
 			oauthMap["access_token"] = dummyPassword
 			oauthMap["refresh_token"] = dummyPassword
 			oauthMap["client_secret"] = dummyPassword
+		}
+
+		// Clear Resend sensitive fields if present
+		if resendMap, ok := cfg["resend"].(map[string]interface{}); ok {
+			resendMap["api_key"] = dummyPassword
+			resendMap["webhook_secret"] = dummyPassword
 		}
 
 		clearedConfig, err := json.Marshal(cfg)

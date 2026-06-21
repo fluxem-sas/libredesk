@@ -342,7 +342,9 @@ func (m *Manager) Update(id int, inbox imodels.Inbox) (imodels.Inbox, error) {
 	case "email":
 		var currentCfg struct {
 			AuthType             string            `json:"auth_type"`
+			Provider             string            `json:"provider"`
 			OAuth                map[string]string `json:"oauth"`
+			Resend               map[string]string `json:"resend"`
 			IMAP                 []map[string]any  `json:"imap"`
 			SMTP                 []map[string]any  `json:"smtp"`
 			ReplyTo              string            `json:"reply_to"`
@@ -350,7 +352,9 @@ func (m *Manager) Update(id int, inbox imodels.Inbox) (imodels.Inbox, error) {
 		}
 		var updateCfg struct {
 			AuthType             string            `json:"auth_type"`
+			Provider             string            `json:"provider"`
 			OAuth                map[string]string `json:"oauth"`
+			Resend               map[string]string `json:"resend"`
 			IMAP                 []map[string]any  `json:"imap"`
 			SMTP                 []map[string]any  `json:"smtp"`
 			ReplyTo              string            `json:"reply_to"`
@@ -369,11 +373,20 @@ func (m *Manager) Update(id int, inbox imodels.Inbox) (imodels.Inbox, error) {
 			return imodels.Inbox{}, envelope.NewError(envelope.GeneralError, m.i18n.T("globals.messages.somethingWentWrong"), nil)
 		}
 
-		if len(updateCfg.IMAP) == 0 {
+		provider := updateCfg.Provider
+		if provider == "" {
+			if len(updateCfg.Resend) > 0 {
+				provider = imodels.ProviderResend
+			} else {
+				provider = imodels.ProviderManual
+			}
+		}
+
+		if provider != imodels.ProviderResend && len(updateCfg.IMAP) == 0 {
 			return imodels.Inbox{}, envelope.NewError(envelope.InputError, m.i18n.T("inbox.emptyIMAP"), nil)
 		}
 
-		if len(updateCfg.SMTP) == 0 {
+		if provider != imodels.ProviderResend && len(updateCfg.SMTP) == 0 {
 			return imodels.Inbox{}, envelope.NewError(envelope.InputError, m.i18n.T("inbox.emptySMTP"), nil)
 		}
 
@@ -399,6 +412,18 @@ func (m *Manager) Update(id int, inbox imodels.Inbox) (imodels.Inbox, error) {
 			for k, v := range currentCfg.OAuth {
 				if updateCfg.OAuth[k] == "" {
 					updateCfg.OAuth[k] = v
+				}
+			}
+		}
+
+		// Preserve existing Resend fields if update has empty
+		if currentCfg.Resend != nil {
+			if updateCfg.Resend == nil {
+				updateCfg.Resend = make(map[string]string)
+			}
+			for k, v := range currentCfg.Resend {
+				if updateCfg.Resend[k] == "" {
+					updateCfg.Resend[k] = v
 				}
 			}
 		}
@@ -635,6 +660,20 @@ func (m *Manager) encryptInboxConfig(config json.RawMessage) (json.RawMessage, e
 		}
 	}
 
+	// Encrypt Resend fields if present
+	if resendMap, ok := cfg["resend"].(map[string]any); ok {
+		fields := []string{"api_key", "webhook_secret"}
+		for _, fieldName := range fields {
+			if fieldValue, ok := resendMap[fieldName].(string); ok && fieldValue != "" {
+				encrypted, err := crypto.Encrypt(fieldValue, m.encryptionKey)
+				if err != nil {
+					return nil, fmt.Errorf("encrypting Resend %s: %w", fieldName, err)
+				}
+				resendMap[fieldName] = encrypted
+			}
+		}
+	}
+
 	encrypted, err := json.Marshal(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("marshalling encrypted config: %w", err)
@@ -697,6 +736,21 @@ func (m *Manager) decryptInboxConfig(config json.RawMessage) (json.RawMessage, e
 					continue
 				}
 				oauthMap[fieldName] = decrypted
+			}
+		}
+	}
+
+	if resendMap, ok := cfg["resend"].(map[string]any); ok {
+		fields := []string{"api_key", "webhook_secret"}
+		for _, fieldName := range fields {
+			if fieldValue, ok := resendMap[fieldName].(string); ok && fieldValue != "" {
+				decrypted, err := crypto.Decrypt(fieldValue, m.encryptionKey)
+				if err != nil {
+					m.lo.Error("error decrypting Resend field, clearing field", "field", fieldName, "error", err)
+					resendMap[fieldName] = ""
+					continue
+				}
+				resendMap[fieldName] = decrypted
 			}
 		}
 	}

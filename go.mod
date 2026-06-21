@@ -37,6 +37,7 @@ require (
 	github.com/redis/go-redis/v9 v9.5.5
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.10.0
+	github.com/svix/svix-webhooks v1.96.0
 	github.com/valyala/fasthttp v1.62.0
 	github.com/volatiletech/null/v9 v9.0.0
 	github.com/zerodha/fastglue v1.8.0

@@ -26,6 +26,8 @@ type Email struct {
 	smtpPools            []*smtppool.Pool
 	smtpPoolsMu          sync.RWMutex
 	smtpPoolsToken       string
+	provider             string
+	resend               *models.ResendConfig
 	smtpCfg              []models.SMTPConfig
 	imapCfg              []models.IMAPConfig
 	oauth                *models.OAuthConfig
@@ -59,14 +61,28 @@ type Opts struct {
 
 // New returns a new instance of the email inbox.
 func New(store inbox.MessageStore, userStore inbox.UserStore, opts Opts) (*Email, error) {
-	pools, err := NewSmtpPool(opts.Config.SMTP, opts.Config.OAuth)
-	if err != nil {
-		return nil, err
+	provider := opts.Config.Provider
+	if provider == "" {
+		if opts.Config.Resend != nil {
+			provider = models.ProviderResend
+		} else {
+			provider = models.ProviderManual
+		}
 	}
 
-	var poolsToken string
-	if opts.Config.OAuth != nil {
-		poolsToken = opts.Config.OAuth.AccessToken
+	var (
+		pools      []*smtppool.Pool
+		poolsToken string
+		err        error
+	)
+	if provider != models.ProviderResend {
+		pools, err = NewSmtpPool(opts.Config.SMTP, opts.Config.OAuth)
+		if err != nil {
+			return nil, err
+		}
+		if opts.Config.OAuth != nil {
+			poolsToken = opts.Config.OAuth.AccessToken
+		}
 	}
 
 	e := &Email{
@@ -76,6 +92,8 @@ func New(store inbox.MessageStore, userStore inbox.UserStore, opts Opts) (*Email
 		from:                 opts.Config.From,
 		fromNameTemplate:     opts.Config.FromNameTemplate,
 		replyTo:              opts.Config.ReplyTo,
+		provider:             provider,
+		resend:               opts.Config.Resend,
 		smtpCfg:              opts.Config.SMTP,
 		imapCfg:              opts.Config.IMAP,
 		lo:                   opts.Lo,
@@ -98,6 +116,10 @@ func (e *Email) Identifier() int {
 
 // Receive starts reading incoming messages for each IMAP client.
 func (e *Email) Receive(ctx context.Context) error {
+	if e.provider == models.ProviderResend {
+		return nil
+	}
+
 	for _, cfg := range e.imapCfg {
 		e.wg.Add(1)
 		go func(cfg models.IMAPConfig) {
@@ -148,6 +170,8 @@ func (e *Email) getCurrentConfig() models.Config {
 	e.oauthMu.RUnlock()
 
 	return models.Config{
+		Provider:             e.provider,
+		Resend:               e.resend,
 		SMTP:                 e.smtpCfg,
 		IMAP:                 e.imapCfg,
 		From:                 e.from,

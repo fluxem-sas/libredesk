@@ -30,6 +30,7 @@ func initHandlers(g *fastglue.Fastglue, hub *ws.Hub) {
 
 	// Public config for app initialization.
 	g.GET("/api/v1/config", handleGetConfig)
+	g.POST("/api/v1/inboxes/resend/webhook", handleResendWebhook)
 
 	// Media - supports both authenticated access and signed URLs.
 	g.GET("/uploads/{uuid}", authOrSignedURL(handleServeMedia))

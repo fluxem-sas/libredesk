@@ -134,7 +134,19 @@
         <FormControl>
           <Input
             type="hidden"
-            :value="setupMethod === 'manual' ? AUTH_TYPE_PASSWORD : AUTH_TYPE_OAUTH2"
+            :value="setupMethod === 'manual' || setupMethod === PROVIDER_RESEND ? AUTH_TYPE_PASSWORD : AUTH_TYPE_OAUTH2"
+            v-bind="componentField"
+          />
+        </FormControl>
+      </FormItem>
+    </FormField>
+
+    <FormField v-if="setupMethod" v-slot="{ componentField }" name="provider">
+      <FormItem>
+        <FormControl>
+          <Input
+            type="hidden"
+            :value="setupMethod === PROVIDER_RESEND ? PROVIDER_RESEND : 'manual'"
             v-bind="componentField"
           />
         </FormControl>
@@ -164,6 +176,14 @@
           :subTitle="$t('admin.inbox.oauth.microsoftDescription')"
           icon="/images/microsoft-logo.svg"
           @click="connectWithMicrosoft()"
+        />
+        <MenuCard
+          class="shrink-0 w-92 max-w-none"
+          title="Resend"
+          subTitle="API nativa + webhook inbound"
+          icon="/images/resend-icon-black.svg"
+          iconDark="/images/resend-icon-white.svg"
+          @click="setupMethod = PROVIDER_RESEND"
         />
         <MenuCard
           class="shrink-0 w-92 max-w-none"
@@ -390,6 +410,54 @@
           <FormMessage />
         </FormItem>
       </FormField>
+    </div>
+
+    <!-- Resend Configuration -->
+    <div v-show="!isOAuthInbox && setupMethod === PROVIDER_RESEND" class="box p-4 space-y-4">
+      <div class="space-y-2">
+        <h3 class="font-semibold">Resend</h3>
+        <p class="text-sm text-muted-foreground">
+          Configura el API key y el webhook secret de Resend. Usa una sola URL de webhook para todos tus inboxes Resend.
+        </p>
+      </div>
+
+      <FormField v-slot="{ componentField }" name="resend.api_key">
+        <FormItem>
+          <FormLabel>API Key</FormLabel>
+          <FormControl>
+            <Input type="text" placeholder="re_xxxxxxxxx" v-bind="componentField" />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      </FormField>
+
+      <FormField v-slot="{ componentField }" name="resend.webhook_secret">
+        <FormItem>
+          <FormLabel>Webhook Secret</FormLabel>
+          <FormControl>
+            <Input type="text" placeholder="whsec_xxxxxxxxx" v-bind="componentField" />
+          </FormControl>
+          <FormDescription>
+            Corresponde al signing secret del webhook configurado en Resend.
+          </FormDescription>
+          <FormMessage />
+        </FormItem>
+      </FormField>
+
+      <div class="rounded-lg border border-border bg-background/60 p-3 space-y-2">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <p class="text-sm font-medium">Webhook URL</p>
+            <p class="text-xs text-muted-foreground break-all">{{ resendWebhookUrl }}</p>
+          </div>
+          <Button type="button" variant="outline" size="sm" @click="copyToClipboard(resendWebhookUrl)">
+            Copiar
+          </Button>
+        </div>
+        <p class="text-xs text-muted-foreground">
+          En Resend crea un webhook para el evento <code>email.received</code> apuntando a esta URL.
+        </p>
+      </div>
     </div>
 
     <!-- IMAP Section -->
@@ -820,7 +888,8 @@ import {
   AUTH_TYPE_PASSWORD,
   AUTH_TYPE_OAUTH2,
   PROVIDER_GOOGLE,
-  PROVIDER_MICROSOFT
+  PROVIDER_MICROSOFT,
+  PROVIDER_RESEND
 } from '@/constants/auth.js'
 import { handleHTTPError } from '@shared-ui/utils/http.js'
 import { useAppSettingsStore } from '@/stores/appSettings'
@@ -855,7 +924,7 @@ const appSettingsStore = useAppSettingsStore()
 // OAuth detection
 const isOAuthInbox = ref(false)
 
-// Setup method selection: null | PROVIDER_GOOGLE | PROVIDER_MICROSOFT | 'manual'
+// Setup method selection: null | PROVIDER_GOOGLE | PROVIDER_MICROSOFT | PROVIDER_RESEND | 'manual'
 const setupMethod = ref(null)
 
 // OAuth modal state
@@ -875,11 +944,18 @@ const callbackUrl = computed(() => {
   return `${rootUrl}/api/v1/inboxes/oauth/${selectedProvider.value}/callback`
 })
 
+const resendWebhookUrl = computed(() => {
+  const rootUrl = appSettingsStore.settings['app.root_url']
+  return `${rootUrl}/api/v1/inboxes/resend/webhook`
+})
+
 // Show form fields when OAuth is connected or manual setup is selected
 const showFormFields = computed(
   () =>
     isOAuthInbox.value ||
     setupMethod.value === 'manual' ||
+    setupMethod.value === PROVIDER_RESEND ||
+    props.initialValues?.provider === PROVIDER_RESEND ||
     (props.initialValues?.imap && Object.keys(props.initialValues?.imap).length > 0)
 )
 
@@ -895,6 +971,11 @@ const form = useForm({
     prompt_tags_on_reply: false,
     enable_plus_addressing: true,
     auth_type: AUTH_TYPE_PASSWORD,
+    provider: 'manual',
+    resend: {
+      api_key: '',
+      webhook_secret: ''
+    },
     imap: {
       host: 'imap.gmail.com',
       port: 993,
@@ -1033,7 +1114,10 @@ watch(
     if (Object.keys(newValues).length === 0) {
       return
     }
-    if (newValues.config?.auth_type === AUTH_TYPE_OAUTH2) {
+    if (newValues.config?.provider === PROVIDER_RESEND || newValues.config?.resend) {
+      isOAuthInbox.value = false
+      setupMethod.value = PROVIDER_RESEND
+    } else if (newValues.config?.auth_type === AUTH_TYPE_OAUTH2) {
       isOAuthInbox.value = true
       setupMethod.value = 'oauth'
     } else {

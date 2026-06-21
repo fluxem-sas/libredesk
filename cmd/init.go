@@ -663,11 +663,20 @@ func initEmailInbox(inboxRecord imodels.Inbox, msgStore inbox.MessageStore, usrS
 		return nil, fmt.Errorf("unmarshalling `%s` %s config: %w", inboxRecord.Channel, inboxRecord.Name, err)
 	}
 
-	if len(config.SMTP) == 0 {
+	provider := config.Provider
+	if provider == "" {
+		if config.Resend != nil {
+			provider = imodels.ProviderResend
+		} else {
+			provider = imodels.ProviderManual
+		}
+	}
+
+	if provider != imodels.ProviderResend && len(config.SMTP) == 0 {
 		log.Printf("WARNING: Zero SMTP servers configured for `%s` inbox: Name: `%s`", inboxRecord.Channel, inboxRecord.Name)
 	}
 
-	if len(config.IMAP) == 0 {
+	if provider != imodels.ProviderResend && len(config.IMAP) == 0 {
 		log.Printf("WARNING: Zero IMAP clients configured for `%s` inbox: Name: `%s`", inboxRecord.Channel, inboxRecord.Name)
 	}
 

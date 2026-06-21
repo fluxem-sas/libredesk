@@ -350,9 +350,35 @@ func validateEmailConfig(app *App, configJSON json.RawMessage) error {
 		return envelope.NewError(envelope.InputError, app.i18n.T("globals.messages.somethingWentWrong"), nil)
 	}
 
+	provider := cfg.Provider
+	if provider == "" {
+		if cfg.Resend != nil {
+			provider = imodels.ProviderResend
+		} else {
+			provider = imodels.ProviderManual
+		}
+	}
+
+	if provider != imodels.ProviderManual && provider != imodels.ProviderResend {
+		return envelope.NewError(envelope.InputError, app.i18n.T("globals.messages.somethingWentWrong"), nil)
+	}
+
 	// Validate auth_type.
 	if cfg.AuthType != "" && cfg.AuthType != imodels.AuthTypePassword && cfg.AuthType != imodels.AuthTypeOAuth2 {
 		return envelope.NewError(envelope.InputError, app.i18n.T("globals.messages.somethingWentWrong"), nil)
+	}
+
+	if provider == imodels.ProviderResend {
+		if cfg.Resend == nil {
+			return envelope.NewError(envelope.InputError, app.i18n.Ts("globals.messages.empty", "name", "resend"), nil)
+		}
+		if cfg.Resend.APIKey == "" {
+			return envelope.NewError(envelope.InputError, app.i18n.Ts("globals.messages.empty", "name", "resend.api_key"), nil)
+		}
+		if cfg.Resend.WebhookSecret == "" {
+			return envelope.NewError(envelope.InputError, app.i18n.Ts("globals.messages.empty", "name", "resend.webhook_secret"), nil)
+		}
+		return nil
 	}
 
 	// Validate OAuth config if auth_type is oauth2.
@@ -446,6 +472,9 @@ func trimEmailConfig(cfg *imodels.Config) {
 		cfg.SMTP[i].Username = strings.TrimSpace(cfg.SMTP[i].Username)
 		cfg.SMTP[i].HelloHostname = strings.TrimSpace(cfg.SMTP[i].HelloHostname)
 	}
+
+	// Trim provider config.
+	cfg.Provider = strings.TrimSpace(cfg.Provider)
 
 	// Trim OAuth config.
 	if cfg.OAuth != nil {
