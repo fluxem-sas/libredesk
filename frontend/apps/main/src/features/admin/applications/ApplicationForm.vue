@@ -123,7 +123,24 @@
         <FormItem>
           <FormLabel>{{ $t('application.gatewayAPIKey') }}</FormLabel>
           <FormControl>
-            <Input type="password" readonly v-bind="componentField" />
+            <div class="relative">
+              <Input
+                :type="showApiKey ? 'text' : 'password'"
+                readonly
+                v-bind="componentField"
+                class="pr-10"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                class="absolute right-0 top-0 h-full px-3"
+                @click="showApiKey = !showApiKey"
+              >
+                <EyeIcon v-if="!showApiKey" class="w-4 h-4" />
+                <EyeOffIcon v-else class="w-4 h-4" />
+              </Button>
+            </div>
           </FormControl>
           <FormDescription>{{ $t('application.gatewayAPIKeyHelp') }}</FormDescription>
           <FormMessage />
@@ -142,7 +159,7 @@ import { Label } from '@shared-ui/components/ui/label'
 import { Textarea } from '@shared-ui/components/ui/textarea'
 import { Button } from '@shared-ui/components/ui/button'
 import { useI18n } from 'vue-i18n'
-import { ImageIcon } from 'lucide-vue-next'
+import { ImageIcon, EyeIcon, EyeOffIcon } from 'lucide-vue-next'
 import {
   FormControl,
   FormField,
@@ -171,6 +188,7 @@ const { t } = useI18n()
 const emitter = useEmitter()
 const logoInput = ref(null)
 const isUploadingLogo = ref(false)
+const showApiKey = ref(false)
 
 async function onLogoUpload(event, handleChange) {
   const file = event.target.files?.[0]
