@@ -361,7 +361,7 @@ func ProcessResendReceivedEmail(ctx context.Context, event ResendWebhookEvent, i
 			return err
 		}
 		disposition := attachment.DispositionAttachment
-		if att.ContentDisposition == attachment.DispositionInline || att.ContentID != "" {
+		if att.ContentDisposition == attachment.DispositionInline {
 			disposition = attachment.DispositionInline
 		}
 		incomingMsg.Attachments = append(incomingMsg.Attachments, attachment.Attachment{
@@ -541,3 +541,4 @@ func firstNonEmpty(values ...string) string {
 	}
 	return ""
 }
+
