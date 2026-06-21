@@ -10,6 +10,13 @@
     <template #help>
       <p>{{ $t('admin.notification.help.description') }}</p>
       <p>{{ $t('admin.notification.help.detail') }}</p>
+      <div class="rounded-lg border border-border/60 bg-background/60 p-4 space-y-2 text-sm">
+        <p class="font-medium">Resend</p>
+        <p class="text-muted-foreground">
+          Esta pantalla usa Resend a través de SMTP: host <code>smtp.resend.com</code>, usuario <code>resend</code>
+          y tu API key como contraseña.
+        </p>
+      </div>
     </template>
   </AdminSplitLayout>
 </template>
