@@ -3,6 +3,7 @@ FROM node:20-alpine AS frontend-builder
 WORKDIR /app/frontend
 
 RUN corepack enable
+ENV CYPRESS_INSTALL_BINARY=0
 
 COPY frontend/package.json frontend/pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
@@ -15,7 +16,7 @@ ENV VITE_APP_VERSION=$VITE_APP_VERSION
 RUN pnpm build:main && pnpm build:widget
 
 
-FROM golang:1.24-alpine AS backend-builder
+FROM golang:1.25-alpine AS backend-builder
 
 WORKDIR /app
 
