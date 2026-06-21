@@ -50,4 +50,4 @@ COPY config.sample.toml ./config.toml
 
 EXPOSE 9000
 
-CMD ["./libredesk", "--config", "/libredesk/config.toml"]
+CMD ["sh", "-c", "./libredesk --install --idempotent-install --yes --config /libredesk/config.toml && ./libredesk --upgrade --yes --config /libredesk/config.toml && ./libredesk --config /libredesk/config.toml"]
