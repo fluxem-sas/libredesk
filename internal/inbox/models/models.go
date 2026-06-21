@@ -26,6 +26,7 @@ type Inbox struct {
 	CreatedAt          time.Time       `db:"created_at" json:"created_at"`
 	UpdatedAt          time.Time       `db:"updated_at" json:"updated_at"`
 	Name               string          `db:"name" json:"name"`
+	ApplicationID      null.Int        `db:"application_id" json:"application_id"`
 	Channel            string          `db:"channel" json:"channel"`
 	Enabled            bool            `db:"enabled" json:"enabled"`
 	CSATEnabled        bool            `db:"csat_enabled" json:"csat_enabled"`

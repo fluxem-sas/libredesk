@@ -118,6 +118,9 @@ type ConversationListItem struct {
 	ReferenceNumber       string                  `db:"reference_number" json:"reference_number"`
 	WaitingSince          null.Time               `db:"waiting_since" json:"waiting_since"`
 	Contact               ConversationListContact `db:"contact" json:"contact"`
+	ApplicationID         null.Int                `db:"application_id" json:"application_id"`
+	ApplicationName       null.String             `db:"application_name" json:"application_name"`
+	ApplicationSlug       null.String             `db:"application_slug" json:"application_slug"`
 	InboxChannel          string                  `db:"inbox_channel" json:"inbox_channel"`
 	InboxName             string                  `db:"inbox_name" json:"inbox_name"`
 	SLAPolicyID           null.Int                `db:"sla_policy_id" json:"sla_policy_id"`
@@ -163,6 +166,7 @@ type Conversation struct {
 	UUID                      string                 `db:"uuid" json:"uuid"`
 	ContactID                 int                    `db:"contact_id" json:"contact_id"`
 	InboxID                   int                    `db:"inbox_id" json:"inbox_id"`
+	ApplicationID             null.Int               `db:"application_id" json:"application_id"`
 	ClosedAt                  null.Time              `db:"closed_at" json:"closed_at"`
 	ResolvedAt                null.Time              `db:"resolved_at" json:"resolved_at"`
 	ReferenceNumber           string                 `db:"reference_number" json:"reference_number"`
@@ -180,6 +184,8 @@ type Conversation struct {
 	InboxReplyTo              string                 `db:"inbox_reply_to" json:"inbox_reply_to"`
 	InboxName                 string                 `db:"inbox_name" json:"inbox_name"`
 	InboxChannel              string                 `db:"inbox_channel" json:"inbox_channel"`
+	ApplicationName           null.String            `db:"application_name" json:"application_name"`
+	ApplicationSlug           null.String            `db:"application_slug" json:"application_slug"`
 	Tags                      null.JSON              `db:"tags" json:"tags"`
 	Meta                      json.RawMessage        `db:"meta" json:"meta"`
 	CustomAttributes          json.RawMessage        `db:"custom_attributes" json:"custom_attributes"`

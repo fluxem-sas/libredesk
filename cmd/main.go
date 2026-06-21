@@ -16,6 +16,7 @@ import (
 
 	activitylog "github.com/abhinavxd/libredesk/internal/activity_log"
 	"github.com/abhinavxd/libredesk/internal/ai"
+	applicationmanager "github.com/abhinavxd/libredesk/internal/application"
 	auth_ "github.com/abhinavxd/libredesk/internal/auth"
 	"github.com/abhinavxd/libredesk/internal/authz"
 	businesshours "github.com/abhinavxd/libredesk/internal/business_hours"
@@ -83,6 +84,7 @@ type App struct {
 	i18n             *i18n.I18n
 	lo               *logf.Logger
 	oidc             *oidc.Manager
+	application      *applicationmanager.Manager
 	media            *media.Manager
 	setting          *setting.Manager
 	role             *role.Manager
@@ -211,6 +213,7 @@ func main() {
 		i18n                        = initI18n(fs)
 		csat                        = initCSAT(db, i18n)
 		oidc                        = initOIDC(db, settings, i18n)
+		application                 = initApplication(db, i18n)
 		status                      = initStatus(db, i18n)
 		priority                    = initPriority(db, i18n)
 		auth                        = initAuth(oidc, rdb, i18n)
@@ -257,6 +260,7 @@ func main() {
 		fs:               fs,
 		sla:              sla,
 		oidc:             oidc,
+		application:      application,
 		i18n:             i18n,
 		auth:             auth,
 		media:            media,

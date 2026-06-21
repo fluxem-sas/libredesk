@@ -141,6 +141,22 @@ const updateOIDC = (id, data) =>
     }
   })
 const deleteOIDC = (id) => http.delete(`/api/v1/oidc/${id}`)
+const getApplications = () => http.get('/api/v1/applications')
+const getApplication = (id) => http.get(`/api/v1/applications/${id}`)
+const createApplication = (data) =>
+  http.post('/api/v1/applications', data, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+const updateApplication = (id, data) =>
+  http.put(`/api/v1/applications/${id}`, data, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+const deleteApplication = (id) => http.delete(`/api/v1/applications/${id}`)
+const toggleApplication = (id) => http.put(`/api/v1/applications/${id}/toggle`)
 const updateSettings = (key, data) =>
   http.put(`/api/v1/settings/${key}`, data, {
     headers: {
@@ -621,6 +637,12 @@ export default {
   getOIDC,
   updateOIDC,
   deleteOIDC,
+  getApplications,
+  getApplication,
+  createApplication,
+  updateApplication,
+  deleteApplication,
+  toggleApplication,
   getTemplate,
   getTemplates,
   createTemplate,
@@ -697,3 +719,7 @@ export default {
   deleteAllNotifications,
   getContactPageVisits
 }
+
+
+
+

@@ -74,6 +74,29 @@ CREATE TABLE business_hours (
 	CONSTRAINT constraint_business_hours_on_description CHECK (length(description) <= 300)
 );
 
+DROP TABLE IF EXISTS applications CASCADE;
+CREATE TABLE applications (
+	id SERIAL PRIMARY KEY,
+	created_at TIMESTAMPTZ DEFAULT NOW(),
+	updated_at TIMESTAMPTZ DEFAULT NOW(),
+	"uuid" UUID DEFAULT gen_random_uuid() NOT NULL UNIQUE,
+	name TEXT NOT NULL,
+	slug TEXT NOT NULL UNIQUE,
+	description TEXT NOT NULL DEFAULT '',
+	logo_url TEXT NOT NULL DEFAULT '',
+	identity_url TEXT NOT NULL DEFAULT '',
+	gateway_app_id TEXT NOT NULL UNIQUE,
+	gateway_api_key_hash TEXT NOT NULL,
+	enabled BOOL DEFAULT TRUE NOT NULL,
+	CONSTRAINT constraint_applications_on_name CHECK (length(name) <= 140),
+	CONSTRAINT constraint_applications_on_slug CHECK (length(slug) <= 140),
+	CONSTRAINT constraint_applications_on_description CHECK (length(description) <= 300),
+	CONSTRAINT constraint_applications_on_logo_url CHECK (length(logo_url) <= 2048),
+	CONSTRAINT constraint_applications_on_identity_url CHECK (length(identity_url) <= 2048),
+	CONSTRAINT constraint_applications_on_gateway_app_id CHECK (length(gateway_app_id) <= 140),
+	CONSTRAINT constraint_applications_on_gateway_api_key_hash CHECK (length(gateway_api_key_hash) <= 255)
+);
+
 DROP TABLE IF EXISTS inboxes CASCADE;
 CREATE TABLE inboxes (
 	id SERIAL PRIMARY KEY,
@@ -89,10 +112,12 @@ CREATE TABLE inboxes (
 	config jsonb DEFAULT '{}'::jsonb NOT NULL,
 	"from" TEXT NULL,
 	from_name_template TEXT NOT NULL DEFAULT '',
+	application_id INT REFERENCES applications(id) ON DELETE SET NULL ON UPDATE CASCADE,
 	secret TEXT NULL,
 	linked_email_inbox_id INT REFERENCES inboxes(id) ON DELETE SET NULL,
 	CONSTRAINT constraint_inboxes_on_name CHECK (length("name") <= 140)
 );
+CREATE INDEX index_inboxes_on_application_id ON inboxes (application_id);
 
 DROP TABLE IF EXISTS teams CASCADE;
 CREATE TABLE teams (
@@ -224,6 +249,7 @@ CREATE TABLE conversations (
 
     -- Cascade deletes when inbox is deleted.
 	inbox_id INT REFERENCES inboxes(id) ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
+	application_id INT REFERENCES applications(id) ON DELETE SET NULL ON UPDATE CASCADE,
 
 	-- Restrict delete.
 	status_id INT REFERENCES conversation_statuses(id) ON DELETE RESTRICT ON UPDATE CASCADE NOT NULL,
@@ -256,6 +282,7 @@ CREATE INDEX index_conversations_on_assigned_team_id ON conversations (assigned_
 CREATE INDEX index_conversations_on_snoozed_until ON conversations (snoozed_until);
 CREATE INDEX index_conversations_on_contact_id ON conversations (contact_id);
 CREATE INDEX index_conversations_on_inbox_id ON conversations (inbox_id);
+CREATE INDEX index_conversations_on_application_id ON conversations (application_id);
 CREATE INDEX index_conversations_on_status_id ON conversations (status_id);
 CREATE INDEX index_conversations_on_priority_id ON conversations (priority_id);
 CREATE INDEX index_conversations_on_created_at ON conversations (created_at);
@@ -768,7 +795,7 @@ VALUES
 	(
 		'Admin',
 		'Role for users who have complete access to everything.',
-		'{webhooks:manage,context_links:manage,activity_logs:manage,custom_attributes:manage,contacts:read_all,contacts:read,contacts:write,contacts:block,contact_notes:read,contact_notes:write,contact_notes:delete,conversations:write,ai:manage,general_settings:manage,notification_settings:manage,oidc:manage,conversations:read_all,conversations:read_unassigned,conversations:read_assigned,conversations:read_team_inbox,conversations:read_team_all,conversations:read,conversations:update_user_assignee,conversations:update_team_assignee,conversations:update_priority,conversations:update_status,conversations:update_tags,messages:read,messages:write,view:manage,shared_views:manage,status:manage,tags:manage,macros:manage,users:manage,teams:manage,automations:manage,inboxes:manage,roles:manage,reports:manage,templates:manage,business_hours:manage,sla:manage}'
+		'{webhooks:manage,context_links:manage,activity_logs:manage,custom_attributes:manage,contacts:read_all,contacts:read,contacts:write,contacts:block,contact_notes:read,contact_notes:write,contact_notes:delete,conversations:write,ai:manage,general_settings:manage,notification_settings:manage,oidc:manage,conversations:read_all,conversations:read_unassigned,conversations:read_assigned,conversations:read_team_inbox,conversations:read_team_all,conversations:read,conversations:update_user_assignee,conversations:update_team_assignee,conversations:update_priority,conversations:update_status,conversations:update_tags,messages:read,messages:write,view:manage,shared_views:manage,status:manage,tags:manage,macros:manage,users:manage,teams:manage,automations:manage,inboxes:manage,applications:manage,roles:manage,reports:manage,templates:manage,business_hours:manage,sla:manage}'
 	);
 
 
@@ -936,3 +963,4 @@ VALUES (
   '',
   true
 );
+

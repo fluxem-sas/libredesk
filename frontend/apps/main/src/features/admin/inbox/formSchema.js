@@ -14,6 +14,7 @@ const requireField = (ctx, path, message) => {
 
 export const createFormSchema = (t) => z.object({
   name: z.string().min(1, t('globals.messages.required')),
+  application_id: z.number().nullable().optional(),
   from: z.string().min(1, t('globals.messages.required')),
   from_name_template: z
     .string()

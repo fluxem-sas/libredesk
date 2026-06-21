@@ -5,16 +5,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
-	"html/template"
-
 	activitylog "github.com/abhinavxd/libredesk/internal/activity_log"
 	"github.com/abhinavxd/libredesk/internal/ai"
+	applicationmanager "github.com/abhinavxd/libredesk/internal/application"
 	auth_ "github.com/abhinavxd/libredesk/internal/auth"
 	"github.com/abhinavxd/libredesk/internal/authz"
 	"github.com/abhinavxd/libredesk/internal/autoassigner"
@@ -866,6 +866,19 @@ func initOIDC(db *sqlx.DB, settings *setting.Manager, i18n *i18n.I18n) *oidc.Man
 		log.Fatalf("error initializing oidc: %v", err)
 	}
 	return o
+}
+
+func initApplication(db *sqlx.DB, i18n *i18n.I18n) *applicationmanager.Manager {
+	lo := initLogger("application")
+	m, err := applicationmanager.New(applicationmanager.Opts{
+		DB:   db,
+		Lo:   lo,
+		I18n: i18n,
+	})
+	if err != nil {
+		log.Fatalf("error initializing application manager: %v", err)
+	}
+	return m
 }
 
 // initI18n inits i18n.

@@ -442,6 +442,32 @@ const routes = [
             ]
           },
           {
+            path: 'applications',
+            component: () => import('@main/views/admin/applications/Applications.vue'),
+            name: 'applications',
+            meta: { titleKey: 'globals.terms.application', titleCount: 2 },
+            children: [
+              {
+                path: '',
+                name: 'application-list',
+                component: () => import('@main/views/admin/applications/ApplicationList.vue')
+              },
+              {
+                path: ':id/edit',
+                props: true,
+                name: 'edit-application',
+                component: () => import('@main/views/admin/applications/CreateEditApplication.vue'),
+                meta: { titleKey: 'application.edit' }
+              },
+              {
+                path: 'new',
+                name: 'new-application',
+                component: () => import('@main/views/admin/applications/CreateEditApplication.vue'),
+                meta: { titleKey: 'application.new' }
+              }
+            ]
+          },
+          {
             path: 'webhooks',
             component: () => import('@main/views/admin/webhooks/Webhooks.vue'),
             name: 'webhooks',
@@ -597,3 +623,7 @@ router.beforeEach((to, from, next) => {
 })
 
 export default router
+
+
+
+

@@ -11,6 +11,28 @@
       </FormItem>
     </FormField>
 
+
+    <FormField v-if="showFormFields" v-slot="{ componentField }" name="application_id">
+      <FormItem>
+        <FormLabel>{{ $t('globals.terms.application') }}</FormLabel>
+        <FormControl>
+          <Select v-bind="componentField">
+            <SelectTrigger>
+              <SelectValue :placeholder="$t('globals.terms.application')" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem :value="0">{{ $t('globals.terms.none') }}</SelectItem>
+              <SelectItem v-for="application in availableApplications" :key="application.id" :value="application.id">
+                {{ application.name }}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </FormControl>
+        <FormDescription>{{ $t('admin.inbox.application.description') }}</FormDescription>
+        <FormMessage />
+      </FormItem>
+    </FormField>
+
     <FormField v-if="showFormFields" v-slot="{ componentField }" name="from">
       <FormItem>
         <FormLabel>{{ $t('globals.terms.fromEmailAddress') }}</FormLabel>
@@ -848,7 +870,7 @@
 </template>
 
 <script setup>
-import { watch, computed, ref } from 'vue'
+import { watch, computed, ref, onMounted } from 'vue'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { createFormSchema } from './formSchema.js'
@@ -937,6 +959,7 @@ const oauthCredentials = ref({
   tenant_id: ''
 })
 const isSubmittingOAuth = ref(false)
+const applications = ref([])
 
 // Computed callback URL for OAuth
 const callbackUrl = computed(() => {
@@ -963,6 +986,7 @@ const form = useForm({
   validationSchema: computed(() => toTypedSchema(createFormSchema(t))),
   initialValues: {
     name: '',
+    application_id: null,
     from: '',
     from_name_template: '',
     reply_to: '',
@@ -1019,6 +1043,10 @@ const oauthClientId = computed(() => {
 })
 
 const isMicrosoftInbox = computed(() => form.values.oauth?.provider === PROVIDER_MICROSOFT)
+
+const availableApplications = computed(() =>
+  applications.value.filter((app) => app.enabled || app.id === form.values.application_id)
+)
 
 const submitLabel = computed(() => {
   return (
@@ -1137,6 +1165,15 @@ const copyToClipboard = async (text) => {
     })
   }
 }
+
+onMounted(async () => {
+  try {
+    const resp = await api.getApplications()
+    applications.value = resp.data.data || []
+  } catch (error) {
+    console.error('Error fetching applications:', error)
+  }
+})
 
 watch(
   () => props.initialValues,

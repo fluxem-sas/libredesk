@@ -134,6 +134,7 @@ const submitForm = (values) => {
 
   const payload = {
     name: values.name,
+    application_id: values.application_id ? Number(values.application_id) : null,
     from: values.from,
     from_name_template: values.from_name_template || '',
     channel: channelName,
@@ -148,6 +149,7 @@ const submitForm = (values) => {
 const submitLiveChatForm = (values) => {
   const payload = {
     name: values.name,
+    application_id: values.application_id ? Number(values.application_id) : null,
     channel: 'livechat',
     enabled: values.enabled ?? true,
     csat_enabled: values.csat_enabled ?? false,

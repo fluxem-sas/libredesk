@@ -168,6 +168,13 @@ export const adminNavItems = [
     isTitleKeyPlural: true,
     children: [
       {
+        titleKey: 'globals.terms.application',
+        href: '/admin/applications',
+        permission: 'applications:manage',
+        isTitleKeyPlural: true,
+        icon: 'Blocks'
+      },
+      {
         titleKey: 'globals.terms.webhook',
         href: '/admin/webhooks',
         permission: 'webhooks:manage',
@@ -202,3 +209,5 @@ export const contactNavItems = [
     icon: 'Contact'
   }
 ]
+
+

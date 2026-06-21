@@ -67,6 +67,7 @@ const submitForm = (values) => {
 
     payload = {
       ...values,
+      application_id: values.application_id ? Number(values.application_id) : null,
       channel: inbox.value.channel,
       config
     }
@@ -104,6 +105,7 @@ const submitForm = (values) => {
   } else if (inbox.value.channel === 'livechat') {
     payload = {
       ...values,
+      application_id: values.application_id ? Number(values.application_id) : null,
       channel: inbox.value.channel,
       config: values.config
     }

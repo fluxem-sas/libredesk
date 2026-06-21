@@ -66,6 +66,26 @@
             </FormItem>
           </FormField>
 
+          <FormField v-slot="{ componentField }" name="application_id">
+            <FormItem>
+              <FormLabel>{{ $t('globals.terms.application') }}</FormLabel>
+              <FormControl>
+                <Select v-bind="componentField">
+                  <SelectTrigger>
+                    <SelectValue :placeholder="$t('globals.terms.application')" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem :value="0">{{ $t('globals.terms.none') }}</SelectItem>
+                    <SelectItem v-for="application in availableApplications" :key="application.id" :value="application.id">
+                      {{ application.name }}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormDescription>{{ $t('admin.inbox.application.description') }}</FormDescription>
+            </FormItem>
+          </FormField>
+
           <FormField v-slot="{ componentField }" name="config.brand_name">
             <FormItem>
               <FormLabel>{{ $t('globals.terms.brandName') }}</FormLabel>
@@ -1011,6 +1031,7 @@ import PreChatFormConfig, { getDefaultPrechatFields } from './PreChatFormConfig.
 import { useAppSettingsStore } from '@/stores/appSettings'
 import CopyButton from '@/components/button/CopyButton.vue'
 import CodeEditor from '@/components/editor/CodeEditor.vue'
+import api from '@/api'
 
 const props = defineProps({
   initialValues: {
@@ -1051,9 +1072,14 @@ const prechatConfig = ref({
 
 const inboxStore = useInboxStore()
 const appSettingsStore = useAppSettingsStore()
+const applications = ref([])
 
 const emailInboxes = computed(() =>
   inboxStore.inboxes.filter((inbox) => inbox.channel === 'email' && inbox.enabled)
+)
+
+const availableApplications = computed(() =>
+  applications.value.filter((app) => app.enabled || app.id === form.values.application_id)
 )
 
 // Get base URL from app settings
@@ -1120,6 +1146,7 @@ const form = useForm({
   validationSchema: toTypedSchema(createFormSchema(t)),
   initialValues: {
     name: '',
+    application_id: null,
     enabled: true,
     secret: '',
     csat_enabled: false,
@@ -1224,9 +1251,15 @@ const updateHomeApps = () => {
 }
 
 // Fetch inboxes and app settings on mount
-onMounted(() => {
+onMounted(async () => {
   inboxStore.fetchInboxes()
   appSettingsStore.fetchPublicConfig()
+  try {
+    const resp = await api.getApplications()
+    applications.value = resp.data.data || []
+  } catch (error) {
+    console.error('Error fetching applications:', error)
+  }
 })
 
 const onSubmit = form.handleSubmit(async (values) => {

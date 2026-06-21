@@ -15,11 +15,12 @@ reference_number AS (
     SELECT generate_reference_number($7) AS reference_number
 )
 INSERT INTO conversations
-(contact_id, status_id, inbox_id, last_message, last_message_at, subject, reference_number, meta, custom_attributes)
+(contact_id, status_id, inbox_id, application_id, last_message, last_message_at, subject, reference_number, meta, custom_attributes)
 SELECT
    $1,
    (SELECT id FROM status_id),
    $3,
+   (SELECT application_id FROM inboxes WHERE id = $3),
    $4,
    $5,
    CASE
@@ -49,6 +50,9 @@ SELECT
     users.last_name as "contact.last_name",
     users.email as "contact.email",
     users.avatar_url as "contact.avatar_url",
+    conversations.application_id,
+    applications.name as application_name,
+    applications.slug as application_slug,
     inboxes.channel as inbox_channel,
     inboxes.name as inbox_name,
     conversations.sla_policy_id,
@@ -102,6 +106,7 @@ SELECT
     FROM conversations
     JOIN users ON contact_id = users.id
     JOIN inboxes ON inbox_id = inboxes.id  
+    LEFT JOIN applications ON applications.id = conversations.application_id
     LEFT JOIN conversation_statuses ON status_id = conversation_statuses.id
     LEFT JOIN conversation_priorities ON priority_id = conversation_priorities.id
     LEFT JOIN LATERAL (
@@ -134,6 +139,9 @@ SELECT
     users.last_name as "contact.last_name",
     users.email as "contact.email",
     users.avatar_url as "contact.avatar_url",
+    conversations.application_id,
+    applications.name as application_name,
+    applications.slug as application_slug,
     inboxes.channel as inbox_channel,
     inboxes.name as inbox_name,
     conversations.sla_policy_id,
@@ -161,6 +169,7 @@ SELECT
 FROM conversations
 JOIN users ON contact_id = users.id
 JOIN inboxes ON inbox_id = inboxes.id
+LEFT JOIN applications ON applications.id = conversations.application_id
 LEFT JOIN conversation_statuses ON status_id = conversation_statuses.id
 LEFT JOIN conversation_priorities ON priority_id = conversation_priorities.id
 LEFT JOIN LATERAL (
@@ -187,6 +196,9 @@ SELECT
    c.closed_at,
    c.resolved_at,
    c.inbox_id,
+   c.application_id,
+   app.name as application_name,
+   app.slug as application_slug,
    inb.name as inbox_name,
    COALESCE(inb.from, '') as inbox_mail,
    COALESCE(inb.config->>'reply_to', '') as inbox_reply_to,
@@ -250,6 +262,7 @@ SELECT
 FROM conversations c
 JOIN users ct ON c.contact_id = ct.id
 JOIN inboxes inb ON c.inbox_id = inb.id
+LEFT JOIN applications app ON c.application_id = app.id
 LEFT JOIN LATERAL (
     SELECT rating, feedback, response_timestamp
     FROM csat_responses

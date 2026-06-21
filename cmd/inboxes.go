@@ -205,6 +205,11 @@ func validateInbox(app *App, inbox imodels.Inbox) error {
 	if inbox.Channel == "" {
 		return envelope.NewError(envelope.InputError, app.i18n.Ts("globals.messages.empty", "name", "channel"), nil)
 	}
+	if inbox.ApplicationID.Valid && inbox.ApplicationID.Int > 0 {
+		if _, err := app.application.Get(inbox.ApplicationID.Int); err != nil {
+			return err
+		}
+	}
 
 	// Validate livechat-specific configuration
 	if inbox.Channel == livechat.ChannelLiveChat {

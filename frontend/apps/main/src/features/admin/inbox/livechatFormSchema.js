@@ -12,6 +12,7 @@ const spacingNumber = (t) => {
 
 export const createFormSchema = (t) => z.object({
   name: z.string().min(1, { message: t('globals.messages.required') }),
+  application_id: z.number().nullable().optional(),
   enabled: z.boolean(),
   csat_enabled: z.boolean(),
   prompt_tags_on_reply: z.boolean(),

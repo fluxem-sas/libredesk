@@ -26,6 +26,7 @@ export const permissions = {
   TEAMS_MANAGE: 'teams:manage',
   AUTOMATIONS_MANAGE: 'automations:manage',
   INBOXES_MANAGE: 'inboxes:manage',
+  APPLICATIONS_MANAGE: 'applications:manage',
   ROLES_MANAGE: 'roles:manage',
   TEMPLATES_MANAGE: 'templates:manage',
   REPORTS_MANAGE: 'reports:manage',
@@ -44,3 +45,4 @@ export const permissions = {
   WEBHOOKS_MANAGE: 'webhooks:manage',
   CONTEXT_LINKS_MANAGE: 'context_links:manage'
 }
+
