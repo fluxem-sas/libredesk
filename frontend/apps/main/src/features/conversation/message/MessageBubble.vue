@@ -129,7 +129,7 @@
           <!-- Status Icons (outgoing only) -->
           <div v-if="isOutgoing" class="flex items-center space-x-2 mt-2 self-end">
             <Lock :size="10" v-if="isPrivateMessage" class="text-muted-foreground" />
-            <Check :size="14" v-if="showCheckCheck" class="text-green-500" />
+            <Check :size="14" v-if="showCheckCheck" class="text-success" />
             <Tooltip v-if="message.meta?.continuity_emailed">
               <TooltipTrigger>
                 <Mail :size="12" class="text-muted-foreground" />

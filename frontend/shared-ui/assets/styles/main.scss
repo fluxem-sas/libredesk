@@ -112,24 +112,71 @@
     }
   }
   :root {
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.9% 10%;
-    --sidebar-primary: 240 5.9% 30%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 5% 93%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 240 5% 88%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --nisaba-primary-lighter: 278 33% 86%;
+    --nisaba-primary-light: 279 28% 59%;
+    --nisaba-primary-main: 277 42% 39%;
+    --nisaba-primary-dark: 282 48% 28%;
+    --nisaba-primary-darker: 278 54% 20%;
+
+    --nisaba-secondary-lighter: 261 69% 89%;
+    --nisaba-secondary-light: 254 66% 68%;
+    --nisaba-secondary-main: 252 65% 63%;
+    --nisaba-secondary-dark: 249 65% 58%;
+    --nisaba-secondary-darker: 245 64% 52%;
+
+    --nisaba-info-lighter: 192 100% 91%;
+    --nisaba-info-light: 203 100% 73%;
+    --nisaba-info-main: 209 100% 55%;
+    --nisaba-info-dark: 214 88% 38%;
+    --nisaba-info-darker: 219 94% 25%;
+
+    --nisaba-success-lighter: 88 85% 91%;
+    --nisaba-success-light: 98 82% 72%;
+    --nisaba-success-main: 106 67% 51%;
+    --nisaba-success-dark: 115 75% 35%;
+    --nisaba-success-darker: 123 86% 22%;
+
+    --nisaba-warning-lighter: 52 100% 90%;
+    --nisaba-warning-light: 48 100% 71%;
+    --nisaba-warning-main: 45 100% 51%;
+    --nisaba-warning-dark: 42 95% 36%;
+    --nisaba-warning-darker: 39 98% 24%;
+
+    --nisaba-error-lighter: 24 100% 92%;
+    --nisaba-error-light: 12 100% 78%;
+    --nisaba-error-main: 2 100% 63%;
+    --nisaba-error-dark: 350 68% 42%;
+    --nisaba-error-darker: 340 82% 26%;
+
+    --nisaba-grey-100: 210 20% 98%;
+    --nisaba-grey-200: 210 22% 96%;
+    --nisaba-grey-300: 213 16% 89%;
+    --nisaba-grey-400: 208 17% 80%;
+    --nisaba-grey-500: 210 13% 62%;
+    --nisaba-grey-600: 208 13% 45%;
+    --nisaba-grey-700: 213 14% 31%;
+    --nisaba-grey-800: 211 24% 17%;
+    --nisaba-grey-900: 214 24% 11%;
+    --nisaba-white: 0 0% 100%;
+
+    --sidebar-background: var(--nisaba-white);
+    --sidebar-foreground: var(--nisaba-grey-800);
+    --sidebar-primary: var(--nisaba-primary-main);
+    --sidebar-primary-foreground: var(--nisaba-white);
+    --sidebar-accent: var(--nisaba-grey-200);
+    --sidebar-accent-foreground: var(--nisaba-grey-800);
+    --sidebar-border: var(--nisaba-grey-300);
+    --sidebar-ring: var(--nisaba-primary-main);
   }
   .dark {
-    --sidebar-background: 240 5% 7%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 235 86% 65%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 5% 19%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 5% 14%;
-    --sidebar-ring: 235 86% 65%;
+    --sidebar-background: var(--nisaba-grey-900);
+    --sidebar-foreground: var(--nisaba-white);
+    --sidebar-primary: var(--nisaba-primary-light);
+    --sidebar-primary-foreground: var(--nisaba-grey-900);
+    --sidebar-accent: var(--nisaba-grey-700);
+    --sidebar-accent-foreground: var(--nisaba-white);
+    --sidebar-border: var(--nisaba-grey-700);
+    --sidebar-ring: var(--nisaba-primary-light);
   }
 
   :root {
@@ -145,68 +192,80 @@
   }
 
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --background: var(--nisaba-white);
+    --foreground: var(--nisaba-grey-800);
 
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card: var(--nisaba-white);
+    --card-foreground: var(--nisaba-grey-800);
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
+    --popover: var(--nisaba-white);
+    --popover-foreground: var(--nisaba-grey-800);
 
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
+    --primary: var(--nisaba-primary-main);
+    --primary-foreground: var(--nisaba-white);
 
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
+    --secondary: 262 29% 95%;
+    --secondary-foreground: var(--nisaba-grey-800);
 
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
+    --muted: var(--nisaba-grey-200);
+    --muted-foreground: var(--nisaba-grey-600);
 
-    --accent: 240 5% 93%;
-    --accent-foreground: 240 5.9% 10%;
+    --accent: var(--nisaba-grey-200);
+    --accent-foreground: var(--nisaba-grey-800);
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: var(--nisaba-error-main);
+    --destructive-foreground: var(--nisaba-white);
+    --success: var(--nisaba-success-main);
+    --success-foreground: var(--nisaba-white);
+    --warning: var(--nisaba-warning-main);
+    --warning-foreground: var(--nisaba-grey-900);
+    --info: var(--nisaba-info-main);
+    --info-foreground: var(--nisaba-white);
 
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5.9% 10%;
+    --border: var(--nisaba-grey-300);
+    --input: var(--nisaba-grey-300);
+    --ring: var(--nisaba-primary-main);
     --radius: 0.5rem;
     --private: 35 90% 94%;
-    --canvas: 240 5% 90%;
+    --canvas: 262 29% 95%;
   }
 
   .dark {
-    --background: 240 7% 11%;
-    --foreground: 240 4% 94%;
+    --background: var(--nisaba-grey-900);
+    --foreground: var(--nisaba-white);
 
-    --card: 240 5% 13%;
-    --card-foreground: 240 4% 94%;
+    --card: var(--nisaba-grey-800);
+    --card-foreground: var(--nisaba-white);
 
-    --popover: 240 5% 15%;
-    --popover-foreground: 240 4% 94%;
+    --popover: var(--nisaba-grey-800);
+    --popover-foreground: var(--nisaba-white);
 
-    --primary: 240 4% 94%;
-    --primary-foreground: 240 7% 11%;
+    --primary: var(--nisaba-primary-light);
+    --primary-foreground: var(--nisaba-grey-900);
 
-    --secondary: 240 5% 16%;
-    --secondary-foreground: 240 4% 94%;
+    --secondary: 254 14% 30%;
+    --secondary-foreground: var(--nisaba-white);
 
-    --muted: 240 5% 16%;
-    --muted-foreground: 240 4% 60%;
+    --muted: var(--nisaba-grey-800);
+    --muted-foreground: var(--nisaba-grey-500);
 
-    --accent: 240 5% 19%;
-    --accent-foreground: 0 0% 98%;
+    --accent: var(--nisaba-grey-700);
+    --accent-foreground: var(--nisaba-white);
 
-    --destructive: 1 100% 69%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: var(--nisaba-error-light);
+    --destructive-foreground: var(--nisaba-grey-900);
+    --success: var(--nisaba-success-light);
+    --success-foreground: var(--nisaba-grey-900);
+    --warning: var(--nisaba-warning-light);
+    --warning-foreground: var(--nisaba-grey-900);
+    --info: var(--nisaba-info-light);
+    --info-foreground: var(--nisaba-grey-900);
 
-    --border: 240 5% 18%;
-    --input: 240 5% 16%;
-    --ring: 240 4.9% 83.9%;
+    --border: var(--nisaba-grey-700);
+    --input: var(--nisaba-grey-700);
+    --ring: var(--nisaba-primary-light);
     --private: 30 35% 18%;
-    --canvas: 240 7% 15%;
+    --canvas: 254 14% 30%;
   }
 }
 

@@ -32,13 +32,13 @@ const sizeClass = computed(() => {
 const statusClass = computed(() => {
   switch (props.status) {
     case 'online':
-      return 'bg-green-500'
+      return 'bg-success'
     case 'away':
     case 'away_manual':
     case 'away_and_reassigning':
-      return 'bg-amber-500'
+      return 'bg-warning'
     default:
-      return 'bg-gray-400'
+      return 'bg-muted-foreground'
   }
 })
 </script>

@@ -1,7 +1,7 @@
 // Mirrors `--primary-foreground` values defined in main.scss so computed
 // foregrounds stay visually consistent with the theme's hand-picked tokens.
-const LIGHT_FOREGROUND_HSL = '0 0% 98%'
-const DARK_FOREGROUND_HSL = '240 7% 11%'
+const LIGHT_FOREGROUND_HSL = '0 0% 100%'
+const DARK_FOREGROUND_HSL = '214 24% 11%'
 
 const parseHexRGB = (hex) => {
   hex = hex.replace(/^#/, '')
