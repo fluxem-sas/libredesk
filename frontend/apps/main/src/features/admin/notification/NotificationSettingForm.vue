@@ -1,5 +1,5 @@
 <template>
-  <form @submit="onSmtpSubmit" class="space-y-6">
+  <form @submit.prevent="onSmtpSubmit" class="space-y-6">
     <FormField name="enabled" v-slot="{ value, handleChange }">
       <FormItem>
         <FormControl>
@@ -482,7 +482,7 @@
       </FormField>
     </template>
 
-    <Button type="submit" :isLoading="isLoading"> {{ submitLabel }} </Button>
+    <Button type="button" :isLoading="isLoading" @click="onSmtpSubmit"> {{ submitLabel }} </Button>
   </form>
 </template>
 
@@ -638,3 +638,4 @@ watch(
   { deep: true, immediate: true }
 )
 </script>
+
