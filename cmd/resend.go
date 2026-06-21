@@ -104,6 +104,10 @@ func getEnabledResendInboxes(app *App) ([]resendInboxCandidate, error) {
 			continue
 		}
 
+		if strings.TrimSpace(cfg.From) == "" {
+			cfg.From = record.From
+		}
+
 		provider := cfg.Provider
 		if provider == "" && cfg.Resend != nil {
 			provider = imodels.ProviderResend
@@ -117,3 +121,4 @@ func getEnabledResendInboxes(app *App) ([]resendInboxCandidate, error) {
 
 	return out, nil
 }
+
