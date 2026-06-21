@@ -183,14 +183,14 @@
           subTitle="API nativa + webhook inbound"
           icon="/images/resend-icon-black.svg"
           iconDark="/images/resend-icon-white.svg"
-          @click="setupMethod = PROVIDER_RESEND"
+          @click="setupMethod = PROVIDER_RESEND; syncSetupMethodState(PROVIDER_RESEND)"
         />
         <MenuCard
           class="shrink-0 w-92 max-w-none"
           :title="$t('admin.inbox.oauth.otherProvider')"
           :subTitle="$t('admin.inbox.oauth.otherProviderDescription')"
           :icon="Mail"
-          @click="setupMethod = 'manual'"
+          @click="setupMethod = 'manual'; syncSetupMethodState('manual')"
         />
       </div>
     </div>
@@ -1027,19 +1027,49 @@ const submitLabel = computed(() => {
   )
 })
 
+const syncSetupMethodState = (method) => {
+  if (method === PROVIDER_RESEND) {
+    form.setFieldValue('provider', PROVIDER_RESEND)
+    form.setFieldValue('auth_type', AUTH_TYPE_PASSWORD)
+    return
+  }
+
+  if (method === 'manual') {
+    form.setFieldValue('provider', 'manual')
+    form.setFieldValue('auth_type', AUTH_TYPE_PASSWORD)
+    return
+  }
+
+  if (method === 'oauth') {
+    form.setFieldValue('provider', 'manual')
+    form.setFieldValue('auth_type', AUTH_TYPE_OAUTH2)
+  }
+}
+
 const onSubmit = form.handleSubmit(async (values) => {
-  await props.submitForm(values)
+  const normalizedValues = {
+    ...values,
+    provider: setupMethod.value === PROVIDER_RESEND ? PROVIDER_RESEND : 'manual',
+    auth_type:
+      setupMethod.value === 'manual' || setupMethod.value === PROVIDER_RESEND
+        ? AUTH_TYPE_PASSWORD
+        : AUTH_TYPE_OAUTH2
+  }
+
+  await props.submitForm(normalizedValues)
 })
 
 const connectWithGoogle = () => {
   flowType.value = 'new_inbox'
   selectedProvider.value = PROVIDER_GOOGLE
+  syncSetupMethodState('oauth')
   showOAuthModal.value = true
 }
 
 const connectWithMicrosoft = () => {
   flowType.value = 'new_inbox'
   selectedProvider.value = PROVIDER_MICROSOFT
+  syncSetupMethodState('oauth')
   showOAuthModal.value = true
 }
 
@@ -1117,12 +1147,15 @@ watch(
     if (newValues.config?.provider === PROVIDER_RESEND || newValues.config?.resend) {
       isOAuthInbox.value = false
       setupMethod.value = PROVIDER_RESEND
+      syncSetupMethodState(PROVIDER_RESEND)
     } else if (newValues.config?.auth_type === AUTH_TYPE_OAUTH2) {
       isOAuthInbox.value = true
       setupMethod.value = 'oauth'
+      syncSetupMethodState('oauth')
     } else {
       isOAuthInbox.value = false
       setupMethod.value = 'manual'
+      syncSetupMethodState('manual')
     }
     form.setValues(newValues)
   },
