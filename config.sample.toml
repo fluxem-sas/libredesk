@@ -50,6 +50,11 @@ expiry = "1h"
 # S3 endpoint URL (required only for non-AWS S3-compatible providers like MinIO).
 # Leave empty to use default AWS endpoints.
 url = ""
+# Optional public base URL for directly serving uploaded files. If empty, private buckets use presigned URLs.
+public_url = ""
+# Set to true for S3 providers that require virtual-hosted-style addressing,
+# for example: https://<bucket>.<endpoint>/<key>
+virtual_hosted_style = false
 
 # AWS S3 credentials, keep empty to use attached IAM roles.
 access_key = ""

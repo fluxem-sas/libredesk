@@ -9,3 +9,6 @@ uploads
 dist/
 .vscode/
 static/widget.min.js
+.cache/
+.cache-loader/
+.cache/**

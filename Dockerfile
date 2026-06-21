@@ -21,6 +21,7 @@ FROM golang:1.25-alpine AS backend-builder
 WORKDIR /app
 
 RUN apk add --no-cache git ca-certificates
+ENV GOBIN=/usr/local/bin
 RUN go install github.com/knadh/stuffbin/...@latest
 
 COPY go.mod go.sum ./
@@ -35,7 +36,7 @@ RUN CGO_ENABLED=0 go build \
   -ldflags="-X 'main.buildString=${LIBREDESK_VERSION}' -X 'main.versionString=${LIBREDESK_VERSION}' -X 'github.com/abhinavxd/libredesk/internal/version.Version=${LIBREDESK_VERSION}' -s -w" \
   -o libredesk ./cmd
 
-RUN /root/go/bin/stuffbin -a stuff -in libredesk -out libredesk frontend/dist i18n schema.sql static
+RUN stuffbin -a stuff -in libredesk -out libredesk frontend/dist i18n schema.sql static
 
 
 FROM alpine:3.18

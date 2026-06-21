@@ -545,8 +545,9 @@ func initMedia(db *sqlx.DB, i18n *i18n.I18n, settings *setting.Manager) *media.M
 			Bucket:     ko.String("upload.s3.bucket"),
 			BucketPath: ko.String("upload.s3.bucket_path"),
 			// All files are private by default.
-			BucketType: "private",
-			Expiry:     ko.Duration("upload.s3.expiry"),
+			BucketType:         "private",
+			Expiry:             ko.Duration("upload.s3.expiry"),
+			VirtualHostedStyle: ko.Bool("upload.s3.virtual_hosted_style"),
 		})
 		if err != nil {
 			log.Fatalf("error initializing s3 media store: %v", err)
