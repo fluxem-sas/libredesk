@@ -479,7 +479,7 @@
   "application.gatewayAppId": "Gateway app ID",
   "application.gatewayAppIdHelp": "Public identifier sent by your gateway in the X-App-Id header. It is auto-generated on creation.",
   "application.identityURL": "Identity URL",
-  "application.identityURLHelp": "fluxem-login endpoint Libredesk will call to enrich tickets. Use https://your-login/api/v1/auth/me (requires header X-User-Id injected by the gateway). You can keep {{user_id}} as a placeholder.",
+  "application.identityURLHelp": "fluxem-login endpoint Libredesk will call to enrich tickets. Use https://your-login/api/v1/auth/me. The gateway must inject the external user ID in the X-User-Id header.",
   "application.logo": "Logo",
   "application.logoHelp": "Upload a logo from your computer. PNG, JPG or SVG.",
   "application.logoUploadError": "Could not upload the logo. Please try again.",

@@ -99,7 +99,7 @@
         <FormItem>
           <FormLabel>{{ $t('application.identityURL') }}</FormLabel>
           <FormControl>
-            <Input type="url" placeholder="https://login.example.com/api/v1/auth/me" v-bind="componentField" />
+            <Input type="url" placeholder="https://your-login.example.com/api/v1/auth/me" v-bind="componentField" />
           </FormControl>
           <FormDescription>{{ $t('application.identityURLHelp') }}</FormDescription>
           <FormMessage />
