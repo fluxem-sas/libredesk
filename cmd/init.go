@@ -27,10 +27,12 @@ import (
 	"github.com/abhinavxd/libredesk/internal/conversation/status"
 	"github.com/abhinavxd/libredesk/internal/csat"
 	customAttribute "github.com/abhinavxd/libredesk/internal/custom_attribute"
+	"github.com/abhinavxd/libredesk/internal/idempotency"
 	"github.com/abhinavxd/libredesk/internal/importer"
 	"github.com/abhinavxd/libredesk/internal/inbox"
 	"github.com/abhinavxd/libredesk/internal/inbox/channel/email"
 	"github.com/abhinavxd/libredesk/internal/inbox/channel/livechat"
+	"github.com/abhinavxd/libredesk/internal/inbox/channel/ticket"
 	imodels "github.com/abhinavxd/libredesk/internal/inbox/models"
 	"github.com/abhinavxd/libredesk/internal/macro"
 	"github.com/abhinavxd/libredesk/internal/media"
@@ -274,6 +276,15 @@ func initUser(i18n *i18n.I18n, DB *sqlx.DB) *user.Manager {
 	})
 	if err != nil {
 		log.Fatalf("error initializing user manager: %v", err)
+	}
+	return mgr
+}
+
+// initIdempotency inits gateway idempotency manager.
+func initIdempotency(db *sqlx.DB) *idempotency.Manager {
+	mgr, err := idempotency.New(db, initLogger("idempotency_manager"))
+	if err != nil {
+		log.Fatalf("error initializing idempotency manager: %v", err)
 	}
 	return mgr
 }
@@ -753,6 +764,29 @@ func initLiveChatInbox(inboxRecord imodels.Inbox, msgStore inbox.MessageStore, u
 	return inbox, nil
 }
 
+// initTicketInbox initializes the ticket inbox.
+func initTicketInbox(inboxRecord imodels.Inbox) (inbox.Inbox, error) {
+	var config ticket.Config
+
+	// Load JSON data into Koanf.
+	if err := ko.Load(rawbytes.Provider([]byte(inboxRecord.Config)), kjson.Parser()); err != nil {
+		return nil, fmt.Errorf("loading config: %w", err)
+	}
+
+	if err := ko.UnmarshalWithConf("", &config, koanf.UnmarshalConf{Tag: "json"}); err != nil {
+		return nil, fmt.Errorf("unmarshalling `%s` %s config: %w", inboxRecord.Channel, inboxRecord.Name, err)
+	}
+
+	t := ticket.New(ticket.Opts{
+		ID:     inboxRecord.ID,
+		Name:   inboxRecord.Name,
+		Config: config,
+	})
+
+	log.Printf("`%s` ticket inbox successfully initialized", inboxRecord.Name)
+	return t, nil
+}
+
 // makeInboxInitializer creates an inbox initializer function.
 func makeInboxInitializer(mgr *inbox.Manager, signAvatarURL func(*null.String)) func(imodels.Inbox, inbox.MessageStore, inbox.UserStore) (inbox.Inbox, error) {
 	return func(inboxR imodels.Inbox, msgStore inbox.MessageStore, usrStore inbox.UserStore) (inbox.Inbox, error) {
@@ -761,6 +795,8 @@ func makeInboxInitializer(mgr *inbox.Manager, signAvatarURL func(*null.String)) 
 			return initEmailInbox(inboxR, msgStore, usrStore, mgr)
 		case inbox.ChannelLiveChat:
 			return initLiveChatInbox(inboxR, msgStore, usrStore, signAvatarURL)
+		case inbox.ChannelTicket:
+			return initTicketInbox(inboxR)
 		default:
 			return nil, fmt.Errorf("unknown inbox channel: %s", inboxR.Channel)
 		}

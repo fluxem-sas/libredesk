@@ -68,12 +68,12 @@
       </FormField>
     </div>
 
-    <div class="grid grid-cols-2 gap-4">
+    <div v-if="!isNewForm" class="grid grid-cols-2 gap-4">
       <FormField v-slot="{ componentField }" name="gateway_app_id">
         <FormItem>
           <FormLabel>{{ $t('application.gatewayAppId') }}</FormLabel>
           <FormControl>
-            <Input type="text" :readonly="!isNewForm" placeholder="kiaro-gateway" v-bind="componentField" />
+            <Input type="text" readonly v-bind="componentField" />
           </FormControl>
           <FormDescription>{{ $t('application.gatewayAppIdHelp') }}</FormDescription>
           <FormMessage />
@@ -84,7 +84,7 @@
         <FormItem>
           <FormLabel>{{ $t('application.gatewayAPIKey') }}</FormLabel>
           <FormControl>
-            <Input type="password" v-bind="componentField" />
+            <Input type="password" readonly v-bind="componentField" />
           </FormControl>
           <FormDescription>{{ $t('application.gatewayAPIKeyHelp') }}</FormDescription>
           <FormMessage />

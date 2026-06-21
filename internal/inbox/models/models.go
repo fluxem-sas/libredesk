@@ -17,6 +17,10 @@ const (
 	AuthTypeOAuth2   = "oauth2"
 	ProviderManual   = "manual"
 	ProviderResend   = "resend"
+
+	ChannelEmail    = "email"
+	ChannelLiveChat = "livechat"
+	ChannelTicket   = "ticket"
 )
 
 // Inbox represents a inbox record in DB.

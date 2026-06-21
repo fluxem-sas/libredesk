@@ -28,6 +28,7 @@ import (
 const (
 	ChannelEmail    = "email"
 	ChannelLiveChat = "livechat"
+	ChannelTicket   = "ticket"
 )
 
 var (
@@ -108,15 +109,16 @@ type Manager struct {
 
 // Prepared queries.
 type queries struct {
-	GetInbox       *sqlx.Stmt `query:"get-inbox"`
-	GetInboxByUUID *sqlx.Stmt `query:"get-inbox-by-uuid"`
-	GetActive      *sqlx.Stmt `query:"get-active-inboxes"`
-	GetAll         *sqlx.Stmt `query:"get-all-inboxes"`
-	Update         *sqlx.Stmt `query:"update"`
-	Toggle         *sqlx.Stmt `query:"toggle"`
-	SoftDelete     *sqlx.Stmt `query:"soft-delete"`
-	InsertInbox    *sqlx.Stmt `query:"insert-inbox"`
-	UpdateConfig   *sqlx.Stmt `query:"update-config"`
+	GetInbox                *sqlx.Stmt `query:"get-inbox"`
+	GetInboxByUUID          *sqlx.Stmt `query:"get-inbox-by-uuid"`
+	GetInboxByAppAndChannel *sqlx.Stmt `query:"get-inbox-by-application-and-channel"`
+	GetActive               *sqlx.Stmt `query:"get-active-inboxes"`
+	GetAll                  *sqlx.Stmt `query:"get-all-inboxes"`
+	Update                  *sqlx.Stmt `query:"update"`
+	Toggle                  *sqlx.Stmt `query:"toggle"`
+	SoftDelete              *sqlx.Stmt `query:"soft-delete"`
+	InsertInbox             *sqlx.Stmt `query:"insert-inbox"`
+	UpdateConfig            *sqlx.Stmt `query:"update-config"`
 }
 
 // New returns a new inbox manager.
@@ -203,6 +205,27 @@ func (m *Manager) GetDBRecord(identifier any) (imodels.Inbox, error) {
 
 	m.decryptInboxSecret(&inbox)
 
+	return inbox, nil
+}
+
+// GetByApplicationAndChannel returns the first inbox matching the application and channel.
+func (m *Manager) GetByApplicationAndChannel(applicationID int, channel string) (imodels.Inbox, error) {
+	var inbox imodels.Inbox
+	if err := m.queries.GetInboxByAppAndChannel.Get(&inbox, applicationID, channel); err != nil {
+		if err == sql.ErrNoRows {
+			return inbox, envelope.NewError(envelope.NotFoundError, m.i18n.T("validation.notFoundInbox"), nil)
+		}
+		m.lo.Error("error fetching inbox by application and channel", "application_id", applicationID, "channel", channel, "error", err)
+		return inbox, envelope.NewError(envelope.GeneralError, m.i18n.T("globals.messages.somethingWentWrong"), nil)
+	}
+
+	decryptedConfig, err := m.decryptInboxConfig(inbox.Config)
+	if err != nil {
+		m.lo.Error("error decrypting inbox config", "application_id", applicationID, "channel", channel, "error", err)
+		return imodels.Inbox{}, envelope.NewError(envelope.GeneralError, m.i18n.T("globals.messages.somethingWentWrong"), nil)
+	}
+	inbox.Config = decryptedConfig
+	m.decryptInboxSecret(&inbox)
 	return inbox, nil
 }
 

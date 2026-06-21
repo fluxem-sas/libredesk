@@ -3,6 +3,23 @@
     <CustomBreadcrumb :links="breadcrumbLinks" />
   </div>
   <LoadingOverlay :loading="isLoading">
+    <Alert v-if="createdCredentials" variant="default" class="mb-6">
+      <AlertTitle>{{ $t('application.credentialsGenerated') }}</AlertTitle>
+      <AlertDescription>
+        <p class="mb-2">{{ $t('application.credentialsGeneratedHelp') }}</p>
+        <div class="space-y-2">
+          <div class="flex items-center space-x-2">
+            <span class="font-semibold">{{ $t('application.gatewayAppId') }}:</span>
+            <code class="bg-muted px-2 py-1 rounded text-sm">{{ createdCredentials.gateway_app_id }}</code>
+          </div>
+          <div class="flex items-center space-x-2">
+            <span class="font-semibold">{{ $t('application.gatewayAPIKey') }}:</span>
+            <code class="bg-muted px-2 py-1 rounded text-sm">{{ createdCredentials.gateway_api_key }}</code>
+          </div>
+        </div>
+      </AlertDescription>
+    </Alert>
+
     <ApplicationForm @submit.prevent="onSubmit" :form="form" :isNewForm="isNewForm">
       <template #footer>
         <div class="flex space-x-3">
@@ -22,6 +39,7 @@ import ApplicationForm from '@/features/admin/applications/ApplicationForm.vue'
 import LoadingOverlay from '@/components/layout/LoadingOverlay.vue'
 import { CustomBreadcrumb } from '@shared-ui/components/ui/breadcrumb'
 import { Button } from '@shared-ui/components/ui/button'
+import { Alert, AlertDescription, AlertTitle } from '@shared-ui/components/ui/alert'
 import { EMITTER_EVENTS } from '@/constants/emitterEvents.js'
 import { useEmitter } from '@/composables/useEmitter'
 import { handleHTTPError } from '@shared-ui/utils/http.js'
@@ -36,6 +54,7 @@ const { t } = useI18n()
 const emitter = useEmitter()
 const isLoading = ref(false)
 const formLoading = ref(false)
+const createdCredentials = ref(null)
 
 const props = defineProps({
   id: {
@@ -65,7 +84,18 @@ const onSubmit = form.handleSubmit(async (values) => {
       await api.updateApplication(props.id, values)
     } else {
       const resp = await api.createApplication(values)
-      router.push({ name: 'edit-application', params: { id: resp.data.data.id } })
+      const data = resp.data.data
+      createdCredentials.value = {
+        gateway_app_id: data.gateway_app_id,
+        gateway_api_key: data.gateway_api_key
+      }
+      router.replace({
+        name: 'edit-application',
+        params: { id: data.id },
+        state: {
+          gatewayCredentials: createdCredentials.value
+        }
+      })
     }
     emitter.emit(EMITTER_EVENTS.SHOW_TOAST, {
       variant: 'success',
@@ -89,6 +119,13 @@ const breadcrumbLinks = [
 ]
 
 onMounted(async () => {
+  const routerState = history.state?.gatewayCredentials
+  if (routerState) {
+    createdCredentials.value = routerState
+    // Clear the state so a refresh does not show it again.
+    history.replaceState({ ...history.state, gatewayCredentials: undefined }, '')
+  }
+
   if (props.id) {
     try {
       isLoading.value = true

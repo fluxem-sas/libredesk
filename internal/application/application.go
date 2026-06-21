@@ -82,6 +82,27 @@ func (m *Manager) Get(id int) (models.Application, error) {
 
 func (m *Manager) Create(app models.Application) (models.Application, error) {
 	var out models.Application
+
+	// Auto-generate gateway credentials if not provided.
+	if strings.TrimSpace(app.GatewayAppID) == "" {
+		randomID, err := stringutil.RandomAlphanumeric(24)
+		if err != nil {
+			m.lo.Error("error generating gateway app id", "error", err)
+			return out, envelope.NewError(envelope.GeneralError, m.i18n.T("globals.messages.somethingWentWrong"), nil)
+		}
+		app.GatewayAppID = strings.ToLower(randomID)
+	}
+	plainKey := app.GatewayAPIKey
+	if plainKey == "" {
+		randomKey, err := stringutil.RandomAlphanumeric(48)
+		if err != nil {
+			m.lo.Error("error generating gateway api key", "error", err)
+			return out, envelope.NewError(envelope.GeneralError, m.i18n.T("globals.messages.somethingWentWrong"), nil)
+		}
+		plainKey = randomKey
+		app.GatewayAPIKey = plainKey
+	}
+
 	normalized, hashedKey, err := m.normalizeForWrite(app, 0, false)
 	if err != nil {
 		return out, err
@@ -105,6 +126,8 @@ func (m *Manager) Create(app models.Application) (models.Application, error) {
 		return out, envelope.NewError(envelope.GeneralError, m.i18n.T("globals.messages.somethingWentWrong"), nil)
 	}
 	out.ClearSecrets()
+	// Return the plain API key once, only on creation.
+	out.GatewayAPIKey = plainKey
 	return out, nil
 }
 

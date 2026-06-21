@@ -959,3 +959,41 @@ FROM conversations
 WHERE contact_id = $1
 ORDER BY last_message_at DESC NULLS LAST
 LIMIT 200;
+
+-- name: get-conversations-by-application-and-contact
+SELECT
+    COUNT(*) OVER() as total,
+    conversations.id,
+    conversations.created_at,
+    conversations.updated_at,
+    conversations.uuid,
+    conversations.reference_number,
+    conversations.subject,
+    conversations.last_message,
+    conversations.last_message_at,
+    conversations.status_id,
+    conversation_statuses.name as status,
+    conversations.priority_id,
+    conversation_priorities.name as priority,
+    conversations.assigned_user_id,
+    conversations.assigned_team_id,
+    users.created_at as "contact.created_at",
+    users.updated_at as "contact.updated_at",
+    users.first_name as "contact.first_name",
+    users.last_name as "contact.last_name",
+    users.email as "contact.email",
+    users.avatar_url as "contact.avatar_url",
+    inboxes.channel as inbox_channel,
+    inboxes.name as inbox_name,
+    applications.name as application_name,
+    applications.slug as application_slug
+FROM conversations
+JOIN users ON contact_id = users.id
+JOIN inboxes ON inbox_id = inboxes.id
+LEFT JOIN applications ON applications.id = conversations.application_id
+LEFT JOIN conversation_statuses ON status_id = conversation_statuses.id
+LEFT JOIN conversation_priorities ON priority_id = conversation_priorities.id
+WHERE conversations.application_id = $1
+  AND conversations.contact_id = $2
+ORDER BY conversations.last_message_at DESC NULLS LAST
+LIMIT $3 OFFSET $4;

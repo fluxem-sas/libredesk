@@ -342,8 +342,9 @@ type queries struct {
 	GetActiveLivechatConversationsByAgent *sqlx.Stmt `query:"get-active-livechat-conversations-by-agent"`
 
 	// WS list-subscribe authz.
-	FilterAuthorizedListUUIDs     *sqlx.Stmt `query:"filter-authorized-list-uuids"`
-	GetConversationUUIDsByContact *sqlx.Stmt `query:"get-conversation-uuids-by-contact"`
+	FilterAuthorizedListUUIDs               *sqlx.Stmt `query:"filter-authorized-list-uuids"`
+	GetConversationUUIDsByContact           *sqlx.Stmt `query:"get-conversation-uuids-by-contact"`
+	GetConversationsByApplicationAndContact *sqlx.Stmt `query:"get-conversations-by-application-and-contact"`
 }
 
 // CreateConversation creates a new conversation. If maxConversations > 0, the insert is
@@ -427,6 +428,26 @@ func (c *Manager) GetContactPreviousConversations(contactID int, limit int) ([]m
 	var conversations = make([]models.PreviousConversation, 0)
 	if err := c.q.GetContactPreviousConversations.Select(&conversations, contactID, limit); err != nil {
 		c.lo.Error("error fetching previous conversations", "error", err)
+		return conversations, envelope.NewError(envelope.GeneralError, c.i18n.T("globals.messages.somethingWentWrong"), nil)
+	}
+	return conversations, nil
+}
+
+// GetConversationsByApplicationAndContact retrieves ticket conversations for a contact within an application.
+func (c *Manager) GetConversationsByApplicationAndContact(applicationID, contactID, page, pageSize int) ([]models.TicketListItem, error) {
+	var conversations = make([]models.TicketListItem, 0)
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 {
+		pageSize = 30
+	}
+	if pageSize > 100 {
+		pageSize = 100
+	}
+	offset := (page - 1) * pageSize
+	if err := c.q.GetConversationsByApplicationAndContact.Select(&conversations, applicationID, contactID, pageSize, offset); err != nil {
+		c.lo.Error("error fetching conversations by application and contact", "error", err)
 		return conversations, envelope.NewError(envelope.GeneralError, c.i18n.T("globals.messages.somethingWentWrong"), nil)
 	}
 	return conversations, nil

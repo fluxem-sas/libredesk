@@ -23,6 +23,7 @@ import (
 	"github.com/abhinavxd/libredesk/internal/colorlog"
 	"github.com/abhinavxd/libredesk/internal/csat"
 	customAttribute "github.com/abhinavxd/libredesk/internal/custom_attribute"
+	"github.com/abhinavxd/libredesk/internal/idempotency"
 	"github.com/abhinavxd/libredesk/internal/macro"
 	notifier "github.com/abhinavxd/libredesk/internal/notification"
 	"github.com/abhinavxd/libredesk/internal/report"
@@ -97,6 +98,7 @@ type App struct {
 	tmpl             *template.Manager
 	macro            *macro.Manager
 	conversation     *conversation.Manager
+	idempotency      *idempotency.Manager
 	automation       *automation.Engine
 	businessHours    *businesshours.Manager
 	sla              *sla.Manager
@@ -230,6 +232,7 @@ func main() {
 		notifDispatcher             = initNotifDispatcher(userNotification, notifier, wsHub, ko.Bool("notification.email.enabled"))
 		automation                  = initAutomationEngine(db, i18n)
 		sla                         = initSLA(db, team, settings, businessHours, template, user, i18n, notifDispatcher)
+		idempotencyMgr              = initIdempotency(db)
 		conversation                = initConversations(i18n, sla, status, priority, wsHub, db, inbox, user, team, media, settings, csat, automation, template, webhook, notifDispatcher)
 		autoassigner                = initAutoAssigner(team, user, conversation)
 		rateLimiter                 = initRateLimit(rdb)
@@ -275,6 +278,7 @@ func main() {
 		notifier:         notifier,
 		consts:           atomic.Value{},
 		conversation:     conversation,
+		idempotency:      idempotencyMgr,
 		automation:       automation,
 		businessHours:    businessHours,
 		activityLog:      initActivityLog(db, i18n),
@@ -296,6 +300,22 @@ func main() {
 		wsHub:            wsHub,
 	}
 	app.consts.Store(constants)
+
+	// Periodically clean up expired gateway idempotency keys (older than 30 days).
+	go func() {
+		ticker := time.NewTicker(24 * time.Hour)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-app.ctx.Done():
+				return
+			case <-ticker.C:
+				if err := app.idempotency.Cleanup(30 * 24 * time.Hour); err != nil {
+					app.lo.Error("error cleaning up idempotency keys", "error", err)
+				}
+			}
+		}
+	}()
 
 	g := fastglue.NewGlue()
 	g.SetContext(app)

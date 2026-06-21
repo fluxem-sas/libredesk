@@ -183,7 +183,7 @@ func handleDeleteInbox(r *fastglue.Request) error {
 // validateInbox validates the inbox
 func validateInbox(app *App, inbox imodels.Inbox) error {
 	// Validate from address only for email channels.
-	if inbox.Channel == "email" {
+	if inbox.Channel == imodels.ChannelEmail {
 		if _, err := mail.ParseAddress(inbox.From); err != nil {
 			return envelope.NewError(envelope.InputError, app.i18n.Ts("validation.invalidFromAddress"), nil)
 		}
@@ -196,7 +196,7 @@ func validateInbox(app *App, inbox imodels.Inbox) error {
 			}
 		}
 	}
-	if len(inbox.Config) == 0 {
+	if inbox.Channel != imodels.ChannelTicket && len(inbox.Config) == 0 {
 		return envelope.NewError(envelope.InputError, app.i18n.Ts("globals.messages.empty", "name", "config"), nil)
 	}
 	if inbox.Name == "" {
@@ -204,6 +204,9 @@ func validateInbox(app *App, inbox imodels.Inbox) error {
 	}
 	if inbox.Channel == "" {
 		return envelope.NewError(envelope.InputError, app.i18n.Ts("globals.messages.empty", "name", "channel"), nil)
+	}
+	if inbox.Channel != imodels.ChannelEmail && inbox.Channel != imodels.ChannelLiveChat && inbox.Channel != imodels.ChannelTicket {
+		return envelope.NewError(envelope.InputError, app.i18n.T("validation.invalidValue"), nil)
 	}
 	if inbox.ApplicationID.Valid && inbox.ApplicationID.Int > 0 {
 		if _, err := app.application.Get(inbox.ApplicationID.Int); err != nil {

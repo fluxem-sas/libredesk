@@ -273,6 +273,11 @@ func initHandlers(g *fastglue.Fastglue, hub *ws.Hub) {
 	g.DELETE("/api/v1/notifications/{id}", auth(handleDeleteNotification))
 	g.DELETE("/api/v1/notifications", auth(handleDeleteAllNotifications))
 
+	// Gateway portal API.
+	g.POST("/api/v1/portal/tickets", gatewayAuth(handleGatewayCreateTicket))
+	g.GET("/api/v1/portal/tickets", gatewayAuth(handleGatewayListTickets))
+	g.GET("/api/v1/portal/tickets/{uuid}", gatewayAuth(handleGatewayGetTicket))
+
 	// WebSocket.
 	g.GET("/ws", auth(func(r *fastglue.Request) error {
 		return handleWS(r, hub)

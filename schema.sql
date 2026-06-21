@@ -1,6 +1,6 @@
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
-DROP TYPE IF EXISTS "channels" CASCADE; CREATE TYPE "channels" AS ENUM ('email', 'livechat');
+DROP TYPE IF EXISTS "channels" CASCADE; CREATE TYPE "channels" AS ENUM ('email', 'livechat', 'ticket');
 DROP TYPE IF EXISTS "message_type" CASCADE; CREATE TYPE "message_type" AS ENUM ('incoming','outgoing','activity');
 DROP TYPE IF EXISTS "message_sender_type" CASCADE; CREATE TYPE "message_sender_type" AS ENUM ('agent','contact');
 DROP TYPE IF EXISTS "message_status" CASCADE; CREATE TYPE "message_status" AS ENUM ('received','sent','failed','pending');
@@ -96,6 +96,18 @@ CREATE TABLE applications (
 	CONSTRAINT constraint_applications_on_gateway_app_id CHECK (length(gateway_app_id) <= 140),
 	CONSTRAINT constraint_applications_on_gateway_api_key_hash CHECK (length(gateway_api_key_hash) <= 255)
 );
+
+DROP TABLE IF EXISTS gateway_idempotency CASCADE;
+CREATE TABLE gateway_idempotency (
+	id SERIAL PRIMARY KEY,
+	created_at TIMESTAMPTZ DEFAULT NOW(),
+	application_id INTEGER NOT NULL REFERENCES applications(id) ON DELETE CASCADE,
+	idempotency_key TEXT NOT NULL,
+	request_path TEXT NOT NULL DEFAULT '',
+	response_conversation_uuid TEXT NOT NULL,
+	UNIQUE(application_id, idempotency_key)
+);
+CREATE INDEX idx_gateway_idempotency_lookup ON gateway_idempotency(application_id, idempotency_key);
 
 DROP TABLE IF EXISTS inboxes CASCADE;
 CREATE TABLE inboxes (

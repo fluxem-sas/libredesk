@@ -159,6 +159,28 @@ type ConversationListContact struct {
 	AvatarURL null.String `db:"avatar_url" json:"avatar_url"`
 }
 
+// TicketListItem represents a ticket conversation returned to gateway clients.
+type TicketListItem struct {
+	Total           int                     `db:"total" json:"-"`
+	ID              int                     `db:"id" json:"id"`
+	CreatedAt       time.Time               `db:"created_at" json:"created_at"`
+	UpdatedAt       time.Time               `db:"updated_at" json:"updated_at"`
+	UUID            string                  `db:"uuid" json:"uuid"`
+	ReferenceNumber string                  `db:"reference_number" json:"reference_number"`
+	Subject         null.String             `db:"subject" json:"subject"`
+	LastMessage     null.String             `db:"last_message" json:"last_message"`
+	LastMessageAt   null.Time               `db:"last_message_at" json:"last_message_at"`
+	Status          null.String             `db:"status" json:"status"`
+	Priority        null.String             `db:"priority" json:"priority"`
+	AssignedUserID  null.Int                `db:"assigned_user_id" json:"assigned_user_id"`
+	AssignedTeamID  null.Int                `db:"assigned_team_id" json:"assigned_team_id"`
+	Contact         ConversationListContact `db:"contact" json:"contact"`
+	InboxChannel    string                  `db:"inbox_channel" json:"inbox_channel"`
+	InboxName       string                  `db:"inbox_name" json:"inbox_name"`
+	ApplicationName null.String             `db:"application_name" json:"application_name"`
+	ApplicationSlug null.String             `db:"application_slug" json:"application_slug"`
+}
+
 type Conversation struct {
 	ID                        int                    `db:"id" json:"id"`
 	CreatedAt                 time.Time              `db:"created_at" json:"created_at"`

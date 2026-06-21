@@ -39,6 +39,14 @@
           :available-languages="availableLanguages"
         />
       </div>
+      <div v-else-if="selectedChannel === 'ticket'">
+        <TicketInboxForm
+          :initial-values="{}"
+          :submitForm="submitTicketForm"
+          :isLoading="isLoading"
+          :isNewForm="true"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -48,10 +56,11 @@ import { ref, onMounted } from 'vue'
 import { Button } from '@shared-ui/components/ui/button'
 import { useRouter } from 'vue-router'
 import { CustomBreadcrumb } from '@shared-ui/components/ui/breadcrumb/index.js'
-import { Mail, MessageCircle } from 'lucide-vue-next'
+import { Mail, MessageCircle, Ticket } from 'lucide-vue-next'
 import MenuCard from '@main/components/layout/MenuCard.vue'
 import EmailInboxForm from '@/features/admin/inbox/EmailInboxForm.vue'
 import LivechatInboxForm from '@/features/admin/inbox/LivechatInboxForm.vue'
+import TicketInboxForm from '@/features/admin/inbox/TicketInboxForm.vue'
 import api from '../../../api'
 import { EMITTER_EVENTS } from '../../../constants/emitterEvents.js'
 import { useEmitter } from '../../../composables/useEmitter'
@@ -83,6 +92,10 @@ const selectLiveChatChannel = () => {
   selectChannel('livechat')
 }
 
+const selectTicketChannel = () => {
+  selectChannel('ticket')
+}
+
 const channels = [
   {
     title: t('globals.terms.email'),
@@ -96,6 +109,12 @@ const channels = [
     onClick: selectLiveChatChannel,
     icon: MessageCircle,
     badge: t('globals.terms.beta')
+  },
+  {
+    title: t('globals.terms.ticket'),
+    subTitle: t('admin.inbox.createTicketInbox'),
+    onClick: selectTicketChannel,
+    icon: Ticket
   }
 ]
 
@@ -157,6 +176,21 @@ const submitLiveChatForm = (values) => {
     secret: values.secret ?? '',
     linked_email_inbox_id: values.linked_email_inbox_id ?? null,
     config: values.config
+  }
+  createInbox(payload)
+}
+
+const submitTicketForm = (values) => {
+  const payload = {
+    name: values.name,
+    application_id: values.application_id ? Number(values.application_id) : null,
+    channel: 'ticket',
+    enabled: values.enabled ?? true,
+    csat_enabled: false,
+    prompt_tags_on_reply: false,
+    from: '',
+    from_name_template: '',
+    config: {}
   }
   createInbox(payload)
 }

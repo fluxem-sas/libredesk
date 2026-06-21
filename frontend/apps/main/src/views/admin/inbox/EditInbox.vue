@@ -17,6 +17,12 @@
       :available-languages="availableLanguages"
       v-else-if="inbox.channel === 'livechat'"
     />
+    <TicketInboxForm
+      :initialValues="inbox"
+      :submitForm="submitForm"
+      :isLoading="isLoading"
+      v-else-if="inbox.channel === 'ticket'"
+    />
   </div>
 </template>
 
@@ -25,6 +31,7 @@ import { onMounted, ref } from 'vue'
 import api from '../../../api'
 import EmailInboxForm from '@/features/admin/inbox/EmailInboxForm.vue'
 import LivechatInboxForm from '@/features/admin/inbox/LivechatInboxForm.vue'
+import TicketInboxForm from '@/features/admin/inbox/TicketInboxForm.vue'
 import { CustomBreadcrumb } from '@shared-ui/components/ui/breadcrumb/index.js'
 import { Spinner } from '@shared-ui/components/ui/spinner'
 import { EMITTER_EVENTS } from '@/constants/emitterEvents.js'
@@ -108,6 +115,18 @@ const submitForm = (values) => {
       application_id: values.application_id ? Number(values.application_id) : null,
       channel: inbox.value.channel,
       config: values.config
+    }
+  } else if (inbox.value.channel === 'ticket') {
+    payload = {
+      name: values.name,
+      application_id: values.application_id ? Number(values.application_id) : null,
+      channel: inbox.value.channel,
+      enabled: values.enabled,
+      csat_enabled: false,
+      prompt_tags_on_reply: false,
+      from: '',
+      from_name_template: '',
+      config: {}
     }
   }
 
