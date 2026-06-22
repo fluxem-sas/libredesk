@@ -426,11 +426,15 @@
   "contact.blockConfirm": "¿Estás seguro de que quieres bloquear este contacto? No podrá chatear y los correos entrantes desde su dirección serán rechazados. Esto también bloquea los correos entrantes de cualquier otro contacto que use el mismo correo electrónico.",
   "contact.blockContact": "Bloquear contacto",
   "contact.blockedSuccessfully": "Contacto bloqueado correctamente",
+  "contact.customAttributes": "Atributos personalizados",
+  "contact.customAttributesDescription": "Información adicional guardada para este contacto desde formularios, integraciones o flujos internos.",
+  "contact.customAttributesEditHint": "Atributos mapeados editables",
   "contact.deleteNote": "Eliminar nota",
   "contact.editContact": "Editar contacto",
   "contact.identityNotVerified": "Identidad no verificada",
   "contact.identityVerified": "Identidad verificada",
   "contact.newNote": "Nueva nota",
+  "contact.noCustomAttributes": "No hay atributos personalizados disponibles.",
   "contact.noContactsFound": "No se encontraron contactos",
   "contact.notes.empty": "Sin notas aún",
   "contact.notes.help": "Añade una nota para este contacto para hacer seguimiento de información importante y conversaciones.",
@@ -1040,4 +1044,5 @@
   "widget.ipBlocked": "Acceso denegado",
   "widget.prechatForm.startChat": "Iniciar chat"
 }
+
 

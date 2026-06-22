@@ -455,11 +455,15 @@
   "contact.blockConfirm": "Are you sure you want to block this contact? They won't be able to chat, and incoming emails from their address will be rejected. This also blocks incoming emails from any other contacts that use the same email.",
   "contact.blockContact": "Block contact",
   "contact.blockedSuccessfully": "Contact blocked successfully",
+  "contact.customAttributes": "Custom attributes",
+  "contact.customAttributesDescription": "Additional information stored for this contact from forms, integrations, or internal workflows.",
+  "contact.customAttributesEditHint": "Editable mapped attributes",
   "contact.deleteNote": "Delete note",
   "contact.editContact": "Edit contact",
   "contact.identityNotVerified": "Identity not verified",
   "contact.identityVerified": "Identity verified",
   "contact.newNote": "New note",
+  "contact.noCustomAttributes": "No custom attributes available.",
   "contact.noContactsFound": "No contacts found",
   "contact.notes.empty": "No notes yet",
   "contact.notes.help": "Add note for this contact to keep track of important information and conversations.",
@@ -1138,4 +1142,5 @@
   "widget.ipBlocked": "Access denied",
   "widget.prechatForm.startChat": "Start chat"
 }
+
 

@@ -76,6 +76,7 @@ func initHandlers(g *fastglue.Fastglue, hub *ws.Hub) {
 	g.PUT("/api/v1/conversations/{uuid}/last-seen", perm(handleUpdateConversationAssigneeLastSeen, "conversations:read"))
 	g.PUT("/api/v1/conversations/{uuid}/mark-unread", perm(handleMarkConversationAsUnread, "conversations:read"))
 	g.POST("/api/v1/conversations/{uuid}/tags", perm(handleUpdateConversationtags, "conversations:update_tags"))
+	g.POST("/api/v1/conversations/{uuid}/request-customer-reply", perm(handleRequestCustomerReply, "messages:write"))
 	g.GET("/api/v1/conversations/{uuid}/page-visits", perm(handleGetContactPageVisits, "conversations:read"))
 	g.GET("/api/v1/conversations/{cuuid}/messages/{uuid}", perm(handleGetMessage, "messages:read"))
 	g.GET("/api/v1/conversations/{uuid}/messages", perm(handleGetMessages, "messages:read"))
@@ -278,6 +279,7 @@ func initHandlers(g *fastglue.Fastglue, hub *ws.Hub) {
 	g.POST("/api/v1/portal/tickets", gatewayAuth(handleGatewayCreateTicket))
 	g.GET("/api/v1/portal/tickets", gatewayAuth(handleGatewayListTickets))
 	g.GET("/api/v1/portal/tickets/{uuid}", gatewayAuth(handleGatewayGetTicket))
+	g.POST("/api/v1/portal/tickets/{uuid}/reply", gatewayAuth(handleGatewayReplyTicket))
 	g.POST("/api/v1/portal/media/upload", gatewayAuth(handleGatewayMediaUpload))
 
 	// WebSocket.

@@ -65,18 +65,33 @@
       <AccordionItem
         value="contact_attributes"
         class="accordion-item"
-        v-if="customAttributeStore.contactAttributeOptions.length > 0"
+        v-if="hasContactAttributeDetails"
       >
         <AccordionTrigger class="accordion-trigger">
           {{ $t('conversation.sidebar.contactAttributes') }}
         </AccordionTrigger>
-        <AccordionContent class="accordion-content">
-          <CustomAttributes
-            :loading="conversationStore.current.loading"
+        <AccordionContent class="accordion-content space-y-4">
+          <CustomAttributesOverview
             :attributes="customAttributeStore.contactAttributeOptions"
-            :customAttributes="conversationStore.current?.contact?.custom_attributes || {}"
-            @update:setattributes="updateContactCustomAttributes"
+            :custom-attributes="conversationStore.current?.contact?.custom_attributes || {}"
+            :empty-text="t('contact.noCustomAttributes')"
           />
+
+          <div
+            v-if="customAttributeStore.contactAttributeOptions.length > 0"
+            class="space-y-3 border-t pt-4"
+          >
+            <p class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              {{ t('contact.customAttributesEditHint') }}
+            </p>
+
+            <CustomAttributes
+              :loading="conversationStore.current.loading"
+              :attributes="customAttributeStore.contactAttributeOptions"
+              :customAttributes="conversationStore.current?.contact?.custom_attributes || {}"
+              @update:setattributes="updateContactCustomAttributes"
+            />
+          </div>
         </AccordionContent>
       </AccordionItem>
 
@@ -145,6 +160,7 @@ import { useStorage } from '@vueuse/core'
 import CustomAttributes from '@/features/conversation/sidebar/CustomAttributes.vue'
 import { useCustomAttributeStore } from '../../../stores/customAttributes'
 import ContactNotes from '@/features/contact/ContactNotes.vue'
+import CustomAttributesOverview from '@/components/custom-attributes/CustomAttributesOverview.vue'
 import PreviousConversations from '@/features/conversation/sidebar/PreviousConversations.vue'
 import ConversationSideBarPageVisits from '@/features/conversation/sidebar/ConversationSideBarPageVisits.vue'
 import SelectComboBox from '@main/components/combobox/SelectCombobox.vue'
@@ -176,6 +192,9 @@ const onTagsChange = (newTags) => {
 }
 
 const priorityOptions = computed(() => conversationStore.priorityOptions)
+const hasContactAttributeDetails = computed(() => {
+  return customAttributeStore.contactAttributeOptions.length > 0 || Object.keys(conversationStore.current?.contact?.custom_attributes || {}).length > 0
+})
 
 const fetchTags = async () => {
   await tagStore.fetchTags()
@@ -260,3 +279,5 @@ const updateContactCustomAttributes = async (attributes) => {
   @apply space-y-3 p-4;
 }
 </style>
+
+

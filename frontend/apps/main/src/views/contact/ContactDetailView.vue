@@ -61,6 +61,23 @@
           </div>
 
           <div class="mt-12 space-y-10">
+            <div class="rounded-xl border bg-background p-6 space-y-4">
+              <div>
+                <h3 class="text-lg font-semibold text-foreground">
+                  {{ t('contact.customAttributes') }}
+                </h3>
+                <p class="text-sm text-muted-foreground mt-1">
+                  {{ t('contact.customAttributesDescription') }}
+                </p>
+              </div>
+
+              <CustomAttributesOverview
+                :attributes="contactAttributeDefinitions"
+                :custom-attributes="contact.custom_attributes || {}"
+                :empty-text="t('contact.noCustomAttributes')"
+              />
+            </div>
+
             <ContactForm :formLoading="formLoading" :onSubmit="onSubmit" />
             <ContactNotes :contactId="contact.id" v-if="userStore.can('contact_notes:read')" />
           </div>
@@ -114,11 +131,13 @@ import {
   DialogDescription
 } from '@shared-ui/components/ui/dialog'
 import { useUserStore } from '../../stores/user'
+import { useCustomAttributeStore } from '../../stores/customAttributes'
 import { ShieldOffIcon, ShieldCheckIcon, IdCardIcon, CalendarIcon } from 'lucide-vue-next'
 import ContactDetail from '@/layouts/contact/ContactDetail.vue'
 import api from '../../api'
 import ContactForm from '@/features/contact/ContactForm.vue'
 import ContactNotes from '@/features/contact/ContactNotes.vue'
+import CustomAttributesOverview from '@/components/custom-attributes/CustomAttributesOverview.vue'
 import { createFormSchema } from '../../features/contact/formSchema.js'
 import { useEmitter } from '../../composables/useEmitter'
 import { EMITTER_EVENTS } from '../../constants/emitterEvents'
@@ -133,17 +152,23 @@ const formLoading = ref(false)
 const contact = ref(null)
 const showBlockConfirmation = ref(false)
 const userStore = useUserStore()
+const customAttributeStore = useCustomAttributeStore()
 
 const form = useForm({
   validationSchema: toTypedSchema(createFormSchema(t))
 })
+
+const contactAttributeDefinitions = computed(() => customAttributeStore.contactAttributeOptions)
 
 const breadcrumbLinks = [
   { path: 'contacts', label: t('globals.terms.contact', 2) },
   { path: '', label: t('contact.editContact') }
 ]
 
-onMounted(fetchContact)
+onMounted(async () => {
+  customAttributeStore.fetchCustomAttributes()
+  await fetchContact()
+})
 
 async function fetchContact() {
   formLoading.value = true
@@ -237,3 +262,5 @@ function showError(err) {
   })
 }
 </script>
+
+

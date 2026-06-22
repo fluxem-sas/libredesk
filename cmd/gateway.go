@@ -329,10 +329,12 @@ func handleGatewayGetTicket(r *fastglue.Request) error {
 
 	response := struct {
 		cmodels.Conversation
-		Messages []cmodels.Message `json:"messages"`
+		Messages         []cmodels.Message `json:"messages"`
+		CustomerCanReply bool              `json:"customer_can_reply"`
 	}{
-		Conversation: conversation,
-		Messages:     messages,
+		Conversation:     conversation,
+		Messages:         messages,
+		CustomerCanReply: getCustomerReplyWindow(parseConversationAttributes(conversation.CustomAttributes)).Open,
 	}
 
 	return r.SendEnvelope(response)

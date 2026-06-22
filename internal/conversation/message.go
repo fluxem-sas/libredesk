@@ -478,6 +478,65 @@ func (m *Manager) CreateContactMessage(media []mmodels.Media, contactID int, con
 	return message, nil
 }
 
+// CreateAgentPublicMessage creates a public agent message directly in the conversation history.
+func (m *Manager) CreateAgentPublicMessage(media []mmodels.Media, senderID int, conversationUUID, content string, metaMap map[string]any) (models.Message, error) {
+	if len(metaMap) == 0 {
+		metaMap = map[string]any{}
+	}
+
+	if data, err := m.BuildTemplateData(conversationUUID, senderID); err == nil {
+		content = m.template.RenderString(data, content)
+	}
+
+	metaJSON, err := json.Marshal(metaMap)
+	if err != nil {
+		m.lo.Error("error marshalling public agent message meta", "error", err)
+		return models.Message{}, envelope.NewError(envelope.GeneralError, m.i18n.T("globals.messages.somethingWentWrong"), nil)
+	}
+
+	message := models.Message{
+		ConversationUUID: conversationUUID,
+		SenderID:         senderID,
+		Type:             models.MessageOutgoing,
+		SenderType:       models.SenderTypeAgent,
+		Status:           models.MessageStatusSent,
+		Content:          content,
+		ContentType:      models.ContentTypeHTML,
+		Private:          false,
+		Media:            media,
+		Meta:             metaJSON,
+	}
+	if err := m.InsertMessage(&message); err != nil {
+		return models.Message{}, err
+	}
+
+	conversation, err := m.GetConversation(message.ConversationID, "", "")
+	if err == nil {
+		now := time.Now()
+		nowStr := now.Format(time.RFC3339)
+		wsData := map[string]any{"last_reply_at": nowStr, "waiting_since": nil}
+
+		var isFirstReply bool
+		if err := m.q.UpdateConversationReplyTimestamps.QueryRow(message.ConversationID, now).Scan(&isFirstReply); err != nil {
+			m.lo.Error("error updating conversation reply timestamps", "error", err)
+		} else if isFirstReply {
+			wsData["first_reply_at"] = nowStr
+		}
+
+		metAt, err := m.slaStore.SetLatestSLAEventMetAt(conversation.AppliedSLAID.Int, sla.MetricNextResponse)
+		if err != nil && !errors.Is(err, sla.ErrLatestSLAEventNotFound) {
+			m.lo.Error("error setting next response SLA event met_at", "conversation_id", conversation.ID, "error", err)
+		} else if !metAt.IsZero() {
+			wsData["next_response_met_at"] = metAt.Format(time.RFC3339)
+		}
+
+		m.BroadcastConversationUpdate(message.ConversationUUID, wsData)
+		m.automation.EvaluateConversationUpdateRulesByID(message.ConversationID, "", amodels.EventConversationMessageOutgoing)
+	}
+
+	return message, nil
+}
+
 // QueueReply queues a reply message in a conversation.
 func (m *Manager) QueueReply(media []mmodels.Media, inboxID, senderID, contactID int, conversationUUID, content string, to, cc, bcc []string, metaMap map[string]interface{}) (models.Message, error) {
 	var (
