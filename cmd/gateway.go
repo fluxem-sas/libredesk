@@ -310,7 +310,32 @@ func handleGatewayGetTicket(r *fastglue.Request) error {
 		return r.SendErrorEnvelope(http.StatusNotFound, app.i18n.T("globals.messages.notFound"), nil, envelope.NotFoundError)
 	}
 
-	return r.SendEnvelope(conversation)
+	private := false
+	messages, err := app.conversation.GetAllConversationMessages(uuid, &private, []string{cmodels.MessageIncoming, cmodels.MessageOutgoing})
+	if err != nil {
+		return sendErrorEnvelope(r, err)
+	}
+
+	rootURL, _ := app.setting.GetAppRootURL()
+	for i := range messages {
+		for j := range messages[i].Attachments {
+			att := messages[i].Attachments[j]
+			messages[i].Attachments[j].URL = app.media.GetURL(att.UUID, att.ContentType, att.Name)
+		}
+		resolveQuotedCIDs(app, &messages[i])
+		resolveAttachmentCIDs(&messages[i], rootURL)
+	}
+	app.conversation.ProcessCSATStatus(messages)
+
+	response := struct {
+		cmodels.Conversation
+		Messages []cmodels.Message `json:"messages"`
+	}{
+		Conversation: conversation,
+		Messages:     messages,
+	}
+
+	return r.SendEnvelope(response)
 }
 
 func scopeExternalUserID(appSlug, externalUserID string) string {
