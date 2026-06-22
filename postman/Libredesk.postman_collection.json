@@ -293,14 +293,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"subject\": \"No puedo acceder a mi cuenta\",\n  \"content\": \"Hola, al intentar iniciar sesión me aparece un error 403.\",\n  \"email\": \"usuario@ejemplo.com\",\n  \"first_name\": \"Juan\",\n  \"last_name\": \"Pérez\"\n}"
+              "raw": "{\n  \"subject\": \"No puedo acceder a mi cuenta\",\n  \"content\": \"Hola, al intentar iniciar sesión me aparece un error 403.\",\n  \"email\": \"usuario@ejemplo.com\",\n  \"first_name\": \"Juan\",\n  \"last_name\": \"Pérez\",\n  \"attachment_ids\": [1, 2]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/portal/tickets",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "portal", "tickets"]
             },
-            "description": "Crea un ticket para el external_user_id autenticado. Opcionalmente envía Idempotency-Key para evitar duplicados."
+            "description": "Crea un ticket para el external_user_id autenticado. email/first_name/last_name son opcionales. Adjuntos se suben primero con Upload attachment y se referencian por ID. Opcionalmente envía Idempotency-Key para evitar duplicados."
           }
         },
         {
@@ -363,6 +363,42 @@
               "path": ["api", "v1", "portal", "tickets", "{{ticketUuid}}"]
             },
             "description": "Obtiene el detalle de un ticket específico incluyendo mensajes."
+          }
+        },
+        {
+          "name": "Upload attachment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-App-Id",
+                "value": "{{appId}}"
+              },
+              {
+                "key": "X-App-Key",
+                "value": "{{appKey}}"
+              },
+              {
+                "key": "X-External-User-Id",
+                "value": "{{externalUserId}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "files",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/portal/media/upload",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "portal", "media", "upload"]
+            },
+            "description": "Sube un archivo adjunto usando gateway auth. Devuelve el objeto media con id y url. Usa el id en attachment_ids al crear un ticket."
           }
         }
       ]

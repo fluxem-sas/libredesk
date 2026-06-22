@@ -278,6 +278,7 @@ func initHandlers(g *fastglue.Fastglue, hub *ws.Hub) {
 	g.POST("/api/v1/portal/tickets", gatewayAuth(handleGatewayCreateTicket))
 	g.GET("/api/v1/portal/tickets", gatewayAuth(handleGatewayListTickets))
 	g.GET("/api/v1/portal/tickets/{uuid}", gatewayAuth(handleGatewayGetTicket))
+	g.POST("/api/v1/portal/media/upload", gatewayAuth(handleGatewayMediaUpload))
 
 	// WebSocket.
 	g.GET("/ws", auth(func(r *fastglue.Request) error {
