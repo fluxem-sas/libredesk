@@ -43,6 +43,7 @@ export const permissions = {
   CONTACT_NOTES_DELETE: 'contact_notes:delete',
   ACTIVITY_LOGS_MANAGE: 'activity_logs:manage',
   WEBHOOKS_MANAGE: 'webhooks:manage',
+  SLACK_MANAGE: 'slack:manage',
   CONTEXT_LINKS_MANAGE: 'context_links:manage'
 }
 

@@ -49,6 +49,9 @@ const (
 	// Webhooks
 	PermWebhooksManage = "webhooks:manage"
 
+	// Slack
+	PermSlackManage = "slack:manage"
+
 	// Context Links
 	PermContextLinksManage = "context_links:manage"
 
@@ -138,6 +141,7 @@ var validPermissions = map[string]struct{}{
 	PermContactNotesDelete:              {},
 	PermActivityLogsManage:              {},
 	PermWebhooksManage:                  {},
+	PermSlackManage:                     {},
 	PermContextLinksManage:              {},
 }
 

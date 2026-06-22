@@ -874,7 +874,7 @@ func handleCreateConversation(r *fastglue.Request) error {
 		}
 		// Trigger webhook for agent-initiated conversation, for contact intitiated the incoming message hooks handle it.
 		if c, err := app.conversation.GetConversation(0, conversationUUID, ""); err == nil {
-			app.webhook.TriggerEvent(wmodels.EventConversationCreated, c)
+			app.events.TriggerEvent(wmodels.EventConversationCreated, c)
 		}
 	case umodels.UserTypeContact:
 		// Create contact message.

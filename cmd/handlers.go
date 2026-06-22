@@ -210,6 +210,22 @@ func initHandlers(g *fastglue.Fastglue, hub *ws.Hub) {
 	g.PUT("/api/v1/webhooks/{id}/toggle", perm(handleToggleWebhook, "webhooks:manage"))
 	g.POST("/api/v1/webhooks/{id}/test", perm(handleTestWebhook, "webhooks:manage"))
 
+	// Slack integration.
+	g.GET("/api/v1/integrations/slack", perm(handleGetSlackIntegration, "slack:manage"))
+	g.GET("/api/v1/integrations/slack/oauth/start", perm(handleSlackOAuthStart, "slack:manage"))
+	g.GET("/api/v1/integrations/slack/oauth/callback", handleSlackOAuthCallback)
+	g.DELETE("/api/v1/integrations/slack/{id}", perm(handleDisconnectSlack, "slack:manage"))
+	g.PUT("/api/v1/integrations/slack/{id}/toggle", perm(handleToggleSlackIntegration, "slack:manage"))
+	g.GET("/api/v1/integrations/slack/channels", perm(handleGetSlackChannels, "slack:manage"))
+	g.GET("/api/v1/integrations/slack/events", perm(handleGetSlackSupportedEvents, "slack:manage"))
+	g.POST("/api/v1/integrations/slack/test", perm(handleTestSlackChannel, "slack:manage"))
+	g.GET("/api/v1/integrations/slack/rules", perm(handleGetSlackRules, "slack:manage"))
+	g.GET("/api/v1/integrations/slack/rules/{id}", perm(handleGetSlackRule, "slack:manage"))
+	g.POST("/api/v1/integrations/slack/rules", perm(handleCreateSlackRule, "slack:manage"))
+	g.PUT("/api/v1/integrations/slack/rules/{id}", perm(handleUpdateSlackRule, "slack:manage"))
+	g.DELETE("/api/v1/integrations/slack/rules/{id}", perm(handleDeleteSlackRule, "slack:manage"))
+	g.PUT("/api/v1/integrations/slack/rules/{id}/toggle", perm(handleToggleSlackRule, "slack:manage"))
+
 	// Context Links.
 	g.GET("/api/v1/context-links", perm(handleGetContextLinks, "context_links:manage"))
 	g.GET("/api/v1/context-links/active", auth(handleGetActiveContextLinks))

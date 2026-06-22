@@ -512,6 +512,28 @@ const deleteWebhook = (id) => http.delete(`/api/v1/webhooks/${id}`)
 const toggleWebhook = (id) => http.put(`/api/v1/webhooks/${id}/toggle`)
 const testWebhook = (id) => http.post(`/api/v1/webhooks/${id}/test`)
 
+const getSlackIntegration = () => http.get('/api/v1/integrations/slack')
+const startSlackOAuth = () => http.get('/api/v1/integrations/slack/oauth/start')
+const disconnectSlack = (id) => http.delete(`/api/v1/integrations/slack/${id}`)
+const toggleSlackIntegration = (id) => http.put(`/api/v1/integrations/slack/${id}/toggle`)
+const getSlackChannels = () => http.get('/api/v1/integrations/slack/channels')
+const getSlackEvents = () => http.get('/api/v1/integrations/slack/events')
+const testSlackChannel = (channelId) =>
+  http.post('/api/v1/integrations/slack/test', { channel_id: channelId }, {
+    headers: { 'Content-Type': 'application/json' }
+  })
+const getSlackRules = () => http.get('/api/v1/integrations/slack/rules')
+const createSlackRule = (data) =>
+  http.post('/api/v1/integrations/slack/rules', data, {
+    headers: { 'Content-Type': 'application/json' }
+  })
+const updateSlackRule = (id, data) =>
+  http.put(`/api/v1/integrations/slack/rules/${id}`, data, {
+    headers: { 'Content-Type': 'application/json' }
+  })
+const deleteSlackRule = (id) => http.delete(`/api/v1/integrations/slack/rules/${id}`)
+const toggleSlackRule = (id) => http.put(`/api/v1/integrations/slack/rules/${id}/toggle`)
+
 const getContextLinks = () => http.get('/api/v1/context-links')
 const getContextLink = (id) => http.get(`/api/v1/context-links/${id}`)
 const createContextLink = (data) =>
@@ -714,6 +736,18 @@ export default {
   deleteWebhook,
   toggleWebhook,
   testWebhook,
+  getSlackIntegration,
+  startSlackOAuth,
+  disconnectSlack,
+  toggleSlackIntegration,
+  getSlackChannels,
+  getSlackEvents,
+  testSlackChannel,
+  getSlackRules,
+  createSlackRule,
+  updateSlackRule,
+  deleteSlackRule,
+  toggleSlackRule,
   getContextLinks,
   getContextLink,
   createContextLink,

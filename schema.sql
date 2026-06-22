@@ -706,6 +706,41 @@ CREATE TABLE webhooks (
 	CONSTRAINT constraint_webhooks_on_events_not_empty CHECK (array_length(events, 1) > 0)
 );
 
+DROP TABLE IF EXISTS slack_routing_rules CASCADE;
+DROP TABLE IF EXISTS slack_integrations CASCADE;
+CREATE TABLE slack_integrations (
+	id SERIAL PRIMARY KEY,
+	created_at TIMESTAMPTZ DEFAULT NOW(),
+	updated_at TIMESTAMPTZ DEFAULT NOW(),
+	team_id TEXT NOT NULL UNIQUE,
+	team_name TEXT NOT NULL DEFAULT '',
+	bot_token TEXT NOT NULL DEFAULT '',
+	bot_user_id TEXT NOT NULL DEFAULT '',
+	installed_by INT REFERENCES users(id) ON DELETE SET NULL,
+	is_active BOOLEAN DEFAULT true,
+	CONSTRAINT constraint_slack_integrations_on_team_id CHECK (length(team_id) <= 64),
+	CONSTRAINT constraint_slack_integrations_on_team_name CHECK (length(team_name) <= 255)
+);
+
+CREATE TABLE slack_routing_rules (
+	id SERIAL PRIMARY KEY,
+	created_at TIMESTAMPTZ DEFAULT NOW(),
+	updated_at TIMESTAMPTZ DEFAULT NOW(),
+	integration_id INT NOT NULL REFERENCES slack_integrations(id) ON DELETE CASCADE,
+	name TEXT NOT NULL,
+	inbox_id INT REFERENCES inboxes(id) ON DELETE CASCADE,
+	events TEXT[] NOT NULL DEFAULT '{}',
+	slack_channel_id TEXT NOT NULL,
+	slack_channel_name TEXT NOT NULL DEFAULT '',
+	is_active BOOLEAN DEFAULT true,
+	CONSTRAINT constraint_slack_routing_rules_on_name CHECK (length(name) <= 255),
+	CONSTRAINT constraint_slack_routing_rules_on_channel CHECK (length(slack_channel_id) <= 64),
+	CONSTRAINT constraint_slack_routing_rules_on_events_not_empty CHECK (array_length(events, 1) > 0)
+);
+
+CREATE INDEX idx_slack_routing_rules_integration ON slack_routing_rules(integration_id);
+CREATE INDEX idx_slack_routing_rules_inbox ON slack_routing_rules(inbox_id);
+
 DROP TABLE IF EXISTS context_links CASCADE;
 CREATE TABLE context_links (
 	id SERIAL PRIMARY KEY,
@@ -812,7 +847,7 @@ VALUES
 	(
 		'Admin',
 		'Role for users who have complete access to everything.',
-		'{webhooks:manage,context_links:manage,activity_logs:manage,custom_attributes:manage,contacts:read_all,contacts:read,contacts:write,contacts:block,contact_notes:read,contact_notes:write,contact_notes:delete,conversations:write,ai:manage,general_settings:manage,notification_settings:manage,oidc:manage,conversations:read_all,conversations:read_unassigned,conversations:read_assigned,conversations:read_team_inbox,conversations:read_team_all,conversations:read,conversations:update_user_assignee,conversations:update_team_assignee,conversations:update_priority,conversations:update_status,conversations:update_tags,messages:read,messages:write,view:manage,shared_views:manage,status:manage,tags:manage,macros:manage,users:manage,teams:manage,automations:manage,inboxes:manage,applications:manage,roles:manage,reports:manage,templates:manage,business_hours:manage,sla:manage}'
+		'{webhooks:manage,slack:manage,context_links:manage,activity_logs:manage,custom_attributes:manage,contacts:read_all,contacts:read,contacts:write,contacts:block,contact_notes:read,contact_notes:write,contact_notes:delete,conversations:write,ai:manage,general_settings:manage,notification_settings:manage,oidc:manage,conversations:read_all,conversations:read_unassigned,conversations:read_assigned,conversations:read_team_inbox,conversations:read_team_all,conversations:read,conversations:update_user_assignee,conversations:update_team_assignee,conversations:update_priority,conversations:update_status,conversations:update_tags,messages:read,messages:write,view:manage,shared_views:manage,status:manage,tags:manage,macros:manage,users:manage,teams:manage,automations:manage,inboxes:manage,applications:manage,roles:manage,reports:manage,templates:manage,business_hours:manage,sla:manage}'
 	);
 
 

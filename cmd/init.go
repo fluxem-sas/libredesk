@@ -26,6 +26,7 @@ import (
 	"github.com/abhinavxd/libredesk/internal/conversation/priority"
 	"github.com/abhinavxd/libredesk/internal/conversation/status"
 	"github.com/abhinavxd/libredesk/internal/csat"
+	slackintegration "github.com/abhinavxd/libredesk/internal/integrations/slack"
 	customAttribute "github.com/abhinavxd/libredesk/internal/custom_attribute"
 	"github.com/abhinavxd/libredesk/internal/idempotency"
 	"github.com/abhinavxd/libredesk/internal/importer"
@@ -53,6 +54,7 @@ import (
 	"github.com/abhinavxd/libredesk/internal/user"
 	"github.com/abhinavxd/libredesk/internal/view"
 	"github.com/abhinavxd/libredesk/internal/webhook"
+	wmodels "github.com/abhinavxd/libredesk/internal/webhook/models"
 	"github.com/abhinavxd/libredesk/internal/ws"
 	"github.com/jmoiron/sqlx"
 	"github.com/knadh/go-i18n"
@@ -305,7 +307,9 @@ func initConversations(
 	csat *csat.Manager,
 	automationEngine *automation.Engine,
 	template *tmpl.Manager,
-	webhook *webhook.Manager,
+	eventTrigger interface {
+		TriggerEvent(event wmodels.WebhookEvent, data any)
+	},
 	dispatcher *notifier.Dispatcher,
 ) *conversation.Manager {
 	continuityConfig := &conversation.ContinuityConfig{}
@@ -313,7 +317,7 @@ func initConversations(
 		continuityConfig.BatchCheckInterval = ko.MustDuration("conversation.continuity_scan_interval")
 	}
 
-	c, err := conversation.New(hub, i18n, sla, status, priority, inboxStore, userStore, teamStore, mediaStore, settings, csat, automationEngine, template, webhook, dispatcher, conversation.Opts{
+	c, err := conversation.New(hub, i18n, sla, status, priority, inboxStore, userStore, teamStore, mediaStore, settings, csat, automationEngine, template, eventTrigger, dispatcher, conversation.Opts{
 		DB:                       db,
 		Lo:                       initLogger("conversation_manager"),
 		OutgoingMessageQueueSize: ko.MustInt("message.outgoing_queue_size"),
@@ -1099,6 +1103,39 @@ func initContextLink(db *sqlx.DB, i18n *i18n.I18n) *contextlink.Manager {
 	})
 	if err != nil {
 		log.Fatalf("error initializing context link manager: %v", err)
+	}
+	return m
+}
+
+// initSlack initializes the Slack integration manager.
+func initSlack(db *sqlx.DB, settings *setting.Manager, i18n *i18n.I18n) *slackintegration.Manager {
+	timeout := 15 * time.Second
+	if ko.Exists("slack.timeout") {
+		timeout = ko.MustDuration("slack.timeout")
+	}
+	workers := 2
+	if ko.Exists("slack.workers") {
+		workers = ko.MustInt("slack.workers")
+	}
+	queueSize := 1000
+	if ko.Exists("slack.queue_size") {
+		queueSize = ko.MustInt("slack.queue_size")
+	}
+
+	m, err := slackintegration.New(slackintegration.Opts{
+		DB:            db,
+		Lo:            initLogger("slack"),
+		I18n:          i18n,
+		Setting:       settings,
+		ClientID:      ko.String("slack.client_id"),
+		ClientSecret:  ko.String("slack.client_secret"),
+		EncryptionKey: ko.MustString("app.encryption_key"),
+		Workers:       workers,
+		QueueSize:     queueSize,
+		Timeout:       timeout,
+	})
+	if err != nil {
+		log.Fatalf("error initializing slack integration: %v", err)
 	}
 	return m
 }

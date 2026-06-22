@@ -494,6 +494,12 @@ const routes = [
             ]
           },
           {
+            path: 'integrations/slack',
+            name: 'slack-integration',
+            component: () => import('@main/views/admin/integrations/SlackIntegration.vue'),
+            meta: { titleKey: 'slack.title' }
+          },
+          {
             path: 'context-links',
             component: () => import('@main/views/admin/context-links/ContextLinks.vue'),
             name: 'context-links',

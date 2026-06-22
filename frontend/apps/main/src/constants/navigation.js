@@ -182,6 +182,12 @@ export const adminNavItems = [
         icon: 'Webhook'
       },
       {
+        titleKey: 'slack.title',
+        href: '/admin/integrations/slack',
+        permission: 'slack:manage',
+        icon: 'MessageSquare'
+      },
+      {
         titleKey: 'globals.terms.contextLink',
         href: '/admin/context-links',
         permission: 'context_links:manage',

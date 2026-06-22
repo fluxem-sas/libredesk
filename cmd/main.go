@@ -22,8 +22,10 @@ import (
 	businesshours "github.com/abhinavxd/libredesk/internal/business_hours"
 	"github.com/abhinavxd/libredesk/internal/colorlog"
 	"github.com/abhinavxd/libredesk/internal/csat"
+	"github.com/abhinavxd/libredesk/internal/eventtrigger"
 	customAttribute "github.com/abhinavxd/libredesk/internal/custom_attribute"
 	"github.com/abhinavxd/libredesk/internal/idempotency"
+	slackintegration "github.com/abhinavxd/libredesk/internal/integrations/slack"
 	"github.com/abhinavxd/libredesk/internal/macro"
 	notifier "github.com/abhinavxd/libredesk/internal/notification"
 	"github.com/abhinavxd/libredesk/internal/report"
@@ -112,6 +114,8 @@ type App struct {
 	customAttribute  *customAttribute.Manager
 	report           *report.Manager
 	webhook          *webhook.Manager
+	slack            *slackintegration.Manager
+	events           *eventtrigger.Hub
 	contextLink      *contextlink.Manager
 	rateLimit        *ratelimit.Limiter
 	redis            *redis.Client
@@ -225,6 +229,8 @@ func main() {
 		team                        = initTeam(db, i18n)
 		businessHours               = initBusinessHours(db, i18n)
 		webhook                     = initWebhook(db, i18n)
+		slack                       = initSlack(db, settings, i18n)
+		events                      = &eventtrigger.Hub{Webhook: webhook, Slack: slack}
 		user                        = initUser(i18n, db)
 		wsHub                       = initWS(user)
 		notifier                    = initNotifier()
@@ -233,7 +239,7 @@ func main() {
 		automation                  = initAutomationEngine(db, i18n)
 		sla                         = initSLA(db, team, settings, businessHours, template, user, i18n, notifDispatcher)
 		idempotencyMgr              = initIdempotency(db)
-		conversation                = initConversations(i18n, sla, status, priority, wsHub, db, inbox, user, team, media, settings, csat, automation, template, webhook, notifDispatcher)
+		conversation                = initConversations(i18n, sla, status, priority, wsHub, db, inbox, user, team, media, settings, csat, automation, template, events, notifDispatcher)
 		autoassigner                = initAutoAssigner(team, user, conversation)
 		rateLimiter                 = initRateLimit(rdb)
 	)
@@ -249,6 +255,7 @@ func main() {
 	go conversation.RunUnsnoozer(ctx, unsnoozeInterval)
 	go conversation.RunContinuity(ctx)
 	go webhook.Run(ctx)
+	go slack.Run(ctx)
 	go notifier.Run(ctx)
 	go sla.Run(ctx, slaEvaluationInterval)
 	go sla.SendNotifications(ctx)
@@ -293,6 +300,8 @@ func main() {
 		ai:               initAI(db, i18n),
 		importer:         initImporter(i18n),
 		webhook:          webhook,
+		slack:            slack,
+		events:           events,
 		contextLink:      initContextLink(db, i18n),
 		rateLimit:        rateLimiter,
 		redis:            rdb,

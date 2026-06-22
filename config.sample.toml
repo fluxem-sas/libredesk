@@ -135,6 +135,17 @@ timeout = "15s"
 # CIDR ranges allowed to bypass SSRF protection (e.g. ["10.0.0.0/8"])
 allowed_hosts = []
 
+[slack]
+# Slack app credentials from https://api.slack.com/apps
+client_id = ""
+client_secret = ""
+# Number of Slack notification workers
+workers = 2
+# Maximum queued Slack deliveries
+queue_size = 1000
+# HTTP timeout for Slack API requests
+timeout = "15s"
+
 [conversation]
 # How often to check for conversations to unsnooze
 unsnooze_interval = "5m"
