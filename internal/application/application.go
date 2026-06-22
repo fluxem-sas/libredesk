@@ -33,14 +33,15 @@ type Opts struct {
 }
 
 type queries struct {
-	GetAllApplications       *sqlx.Stmt `query:"get-all-applications"`
-	GetApplication           *sqlx.Stmt `query:"get-application"`
-	GetApplicationByAppID    *sqlx.Stmt `query:"get-application-by-gateway-app-id"`
-	GetApplicationAPIKeyHash *sqlx.Stmt `query:"get-application-api-key-hash"`
-	InsertApplication        *sqlx.Stmt `query:"insert-application"`
-	UpdateApplication        *sqlx.Stmt `query:"update-application"`
-	DeleteApplication        *sqlx.Stmt `query:"delete-application"`
-	ToggleApplication        *sqlx.Stmt `query:"toggle-application"`
+	GetAllApplications          *sqlx.Stmt `query:"get-all-applications"`
+	GetApplication              *sqlx.Stmt `query:"get-application"`
+	GetApplicationByAppID       *sqlx.Stmt `query:"get-application-by-gateway-app-id"`
+	GetApplicationAPIKeyHash    *sqlx.Stmt `query:"get-application-api-key-hash"`
+	InsertApplication           *sqlx.Stmt `query:"insert-application"`
+	UpdateApplication           *sqlx.Stmt `query:"update-application"`
+	RegenerateApplicationAPIKey *sqlx.Stmt `query:"regenerate-application-api-key"`
+	DeleteApplication           *sqlx.Stmt `query:"delete-application"`
+	ToggleApplication           *sqlx.Stmt `query:"toggle-application"`
 }
 
 func New(opts Opts) (*Manager, error) {
@@ -157,6 +158,34 @@ func (m *Manager) Update(id int, app models.Application) (models.Application, er
 		return out, envelope.NewError(envelope.GeneralError, m.i18n.T("globals.messages.somethingWentWrong"), nil)
 	}
 	out.ClearSecrets()
+	return out, nil
+}
+
+func (m *Manager) RegenerateAPIKey(id int) (models.Application, error) {
+	var out models.Application
+
+	plainKey, err := stringutil.RandomAlphanumeric(48)
+	if err != nil {
+		m.lo.Error("error generating gateway api key", "id", id, "error", err)
+		return out, envelope.NewError(envelope.GeneralError, m.i18n.T("globals.messages.somethingWentWrong"), nil)
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(plainKey), bcrypt.DefaultCost)
+	if err != nil {
+		m.lo.Error("error hashing application api key", "id", id, "error", err)
+		return out, envelope.NewError(envelope.GeneralError, m.i18n.T("globals.messages.somethingWentWrong"), nil)
+	}
+
+	if err := m.q.RegenerateApplicationAPIKey.Get(&out, id, string(hash)); err != nil {
+		if err == sql.ErrNoRows {
+			return out, envelope.NewError(envelope.NotFoundError, m.i18n.T("globals.messages.notFound"), nil)
+		}
+		m.lo.Error("error regenerating application api key", "id", id, "error", err)
+		return out, envelope.NewError(envelope.GeneralError, m.i18n.T("globals.messages.somethingWentWrong"), nil)
+	}
+
+	out.ClearSecrets()
+	out.GatewayAPIKey = plainKey
 	return out, nil
 }
 

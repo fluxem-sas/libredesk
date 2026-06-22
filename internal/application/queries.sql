@@ -38,6 +38,12 @@ SET
 WHERE id = $1
 RETURNING *;
 
+-- name: regenerate-application-api-key
+UPDATE applications
+SET gateway_api_key_hash = $2, updated_at = NOW()
+WHERE id = $1
+RETURNING *;
+
 -- name: delete-application
 DELETE FROM applications
 WHERE id = $1;
@@ -47,4 +53,3 @@ UPDATE applications
 SET enabled = NOT enabled, updated_at = NOW()
 WHERE id = $1
 RETURNING *;
-

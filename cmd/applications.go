@@ -65,6 +65,19 @@ func handleUpdateApplication(r *fastglue.Request) error {
 	return r.SendEnvelope(out)
 }
 
+func handleRegenerateApplicationAPIKey(r *fastglue.Request) error {
+	app := r.Context.(*App)
+	id, err := strconv.Atoi(r.RequestCtx.UserValue("id").(string))
+	if err != nil || id <= 0 {
+		return r.SendErrorEnvelope(fasthttp.StatusBadRequest, app.i18n.T("globals.messages.somethingWentWrong"), nil, envelope.InputError)
+	}
+	out, err := app.application.RegenerateAPIKey(id)
+	if err != nil {
+		return sendErrorEnvelope(r, err)
+	}
+	return r.SendEnvelope(out)
+}
+
 func handleDeleteApplication(r *fastglue.Request) error {
 	app := r.Context.(*App)
 	id, err := strconv.Atoi(r.RequestCtx.UserValue("id").(string))

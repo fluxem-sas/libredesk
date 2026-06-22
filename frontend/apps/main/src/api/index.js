@@ -157,6 +157,12 @@ const updateApplication = (id, data) =>
   })
 const deleteApplication = (id) => http.delete(`/api/v1/applications/${id}`)
 const toggleApplication = (id) => http.put(`/api/v1/applications/${id}/toggle`)
+const regenerateApplicationAPIKey = (id) =>
+  http.post(`/api/v1/applications/${id}/regenerate-api-key`, {}, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
 const updateSettings = (key, data) =>
   http.put(`/api/v1/settings/${key}`, data, {
     headers: {
@@ -643,6 +649,7 @@ export default {
   updateApplication,
   deleteApplication,
   toggleApplication,
+  regenerateApplicationAPIKey,
   getTemplate,
   getTemplates,
   createTemplate,
@@ -719,7 +726,4 @@ export default {
   deleteAllNotifications,
   getContactPageVisits
 }
-
-
-
 

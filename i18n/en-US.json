@@ -476,6 +476,7 @@
   "application.credentialsGeneratedHelp": "Copy these values now. The API key will only be shown once.",
   "application.gatewayAPIKey": "Gateway API key",
   "application.gatewayAPIKeyHelp": "Static shared key sent by your gateway in the X-App-Key header. It is auto-generated on creation.",
+  "application.regenerateGatewayAPIKey": "Regenerate API key",
   "application.gatewayAppId": "Gateway app ID",
   "application.gatewayAppIdHelp": "Public identifier sent by your gateway in the X-App-Id header. It is auto-generated on creation.",
   "application.identityURL": "Identity URL",

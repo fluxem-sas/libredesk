@@ -54,6 +54,7 @@ func initHandlers(g *fastglue.Fastglue, hub *ws.Hub) {
 	g.POST("/api/v1/applications", perm(handleCreateApplication, "applications:manage"))
 	g.GET("/api/v1/applications/{id}", perm(handleGetApplication, "applications:manage"))
 	g.PUT("/api/v1/applications/{id}", perm(handleUpdateApplication, "applications:manage"))
+	g.POST("/api/v1/applications/{id}/regenerate-api-key", perm(handleRegenerateApplicationAPIKey, "applications:manage"))
 	g.DELETE("/api/v1/applications/{id}", perm(handleDeleteApplication, "applications:manage"))
 	g.PUT("/api/v1/applications/{id}/toggle", perm(handleToggleApplication, "applications:manage"))
 

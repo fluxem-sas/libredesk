@@ -20,7 +20,13 @@
       </AlertDescription>
     </Alert>
 
-    <ApplicationForm @submit.prevent="onSubmit" :form="form" :isNewForm="isNewForm">
+    <ApplicationForm
+      @submit.prevent="onSubmit"
+      :form="form"
+      :isNewForm="isNewForm"
+      :onRegenerateApiKey="!isNewForm ? handleRegenerateApiKey : null"
+      :isRegeneratingApiKey="isRegeneratingApiKey"
+    >
       <template #footer>
         <div class="flex space-x-3">
           <Button type="submit" :isLoading="formLoading">
@@ -54,6 +60,7 @@ const { t } = useI18n()
 const emitter = useEmitter()
 const isLoading = ref(false)
 const formLoading = ref(false)
+const isRegeneratingApiKey = ref(false)
 const createdCredentials = ref(null)
 const gatewayCredentialsStorageKey = 'libredesk.gateway.credentials'
 
@@ -118,6 +125,36 @@ const onSubmit = form.handleSubmit(async (values) => {
     formLoading.value = false
   }
 })
+
+async function handleRegenerateApiKey() {
+  if (!props.id) return
+
+  try {
+    isRegeneratingApiKey.value = true
+    const resp = await api.regenerateApplicationAPIKey(props.id)
+    const data = resp.data.data
+    createdCredentials.value = {
+      gateway_app_id: data.gateway_app_id,
+      gateway_api_key: data.gateway_api_key
+    }
+    form.setValues({
+      ...form.values,
+      gateway_app_id: data.gateway_app_id,
+      gateway_api_key: data.gateway_api_key
+    })
+    emitter.emit(EMITTER_EVENTS.SHOW_TOAST, {
+      variant: 'success',
+      description: t('globals.messages.savedSuccessfully')
+    })
+  } catch (error) {
+    emitter.emit(EMITTER_EVENTS.SHOW_TOAST, {
+      variant: 'destructive',
+      description: handleHTTPError(error).message
+    })
+  } finally {
+    isRegeneratingApiKey.value = false
+  }
+}
 
 const isNewForm = computed(() => !props.id)
 

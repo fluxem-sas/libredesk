@@ -143,6 +143,18 @@
             </div>
           </FormControl>
           <FormDescription>{{ $t('application.gatewayAPIKeyHelp') }}</FormDescription>
+          <div class="mt-3" v-if="typeof onRegenerateApiKey === 'function'">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              :isLoading="isRegeneratingApiKey"
+              :disabled="isRegeneratingApiKey"
+              @click="onRegenerateApiKey"
+            >
+              {{ $t('application.regenerateGatewayAPIKey') }}
+            </Button>
+          </div>
           <FormMessage />
         </FormItem>
       </FormField>
@@ -181,6 +193,14 @@ defineProps({
   },
   isNewForm: {
     type: Boolean
+  },
+  onRegenerateApiKey: {
+    type: Function,
+    default: null
+  },
+  isRegeneratingApiKey: {
+    type: Boolean,
+    default: false
   }
 })
 

@@ -447,6 +447,7 @@
   "application.credentialsGeneratedHelp": "Copia estos valores ahora. La API key solo se mostrará una vez.",
   "application.gatewayAPIKey": "API key del gateway",
   "application.gatewayAPIKeyHelp": "Clave estática compartida que tu gateway enviará en el header X-App-Key. Se genera automáticamente al crear.",
+  "application.regenerateGatewayAPIKey": "Regenerar API key",
   "application.gatewayAppId": "ID de la aplicación en gateway",
   "application.gatewayAppIdHelp": "Identificador público que el gateway enviará en el header X-App-Id. Se genera automáticamente al crear.",
   "application.identityURL": "URL de identidad",

@@ -1,0 +1,498 @@
+{
+  "info": {
+    "_postman_id": "libredesk-ticket-channel-collection",
+    "name": "Libredesk - Ticket channel + Gateway",
+    "description": "Colección para probar la API de Libredesk enfocada en aplicaciones, inboxes de tipo ticket y el portal gateway.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login agente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{adminUsername}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            },
+            "description": "Autentica un agente/admin y deja la sesión en cookies. Los endpoints admin usan esta sesión."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["logout"]
+            }
+          }
+        },
+        {
+          "name": "Current agent",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/agents/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "agents", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Applications",
+      "item": [
+        {
+          "name": "List applications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/applications",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "applications"]
+            }
+          }
+        },
+        {
+          "name": "Create application",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"KIARO\",\n  \"slug\": \"kiaro\",\n  \"description\": \"Soporte para aplicación KIARO\",\n  \"logo_url\": \"\",\n  \"identity_url\": \"https://login.fluxem.com/api/v1/auth/me\",\n  \"enabled\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/applications",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "applications"]
+            },
+            "description": "Crea una aplicación. La respuesta incluye gateway_app_id y gateway_api_key (solo una vez)."
+          }
+        },
+        {
+          "name": "Get application",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/applications/{{applicationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "applications", "{{applicationId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update application",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"KIARO\",\n  \"slug\": \"kiaro\",\n  \"description\": \"Soporte para aplicación KIARO\",\n  \"logo_url\": \"\",\n  \"identity_url\": \"https://login.fluxem.com/api/v1/auth/me\",\n  \"gateway_app_id\": \"{{appId}}\",\n  \"gateway_api_key\": \"\",\n  \"enabled\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/applications/{{applicationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "applications", "{{applicationId}}"]
+            }
+          }
+        },
+        {
+          "name": "Regenerate API key",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/applications/{{applicationId}}/regenerate-api-key",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "applications", "{{applicationId}}", "regenerate-api-key"]
+            },
+            "description": "Genera una nueva API key. La respuesta incluye el valor plano solo una vez."
+          }
+        },
+        {
+          "name": "Toggle application",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/applications/{{applicationId}}/toggle",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "applications", "{{applicationId}}", "toggle"]
+            }
+          }
+        },
+        {
+          "name": "Delete application",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/applications/{{applicationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "applications", "{{applicationId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Inboxes",
+      "item": [
+        {
+          "name": "List inboxes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/inboxes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "inboxes"]
+            }
+          }
+        },
+        {
+          "name": "Create ticket inbox",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Soporte KIARO\",\n  \"channel\": \"ticket\",\n  \"application_id\": {{applicationId}},\n  \"enabled\": true,\n  \"csat_enabled\": false,\n  \"from\": \"\",\n  \"from_name_template\": \"\",\n  \"config\": {}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/inboxes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "inboxes"]
+            },
+            "description": "Crea un inbox de tipo ticket asignado a una aplicación."
+          }
+        },
+        {
+          "name": "Get inbox",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/inboxes/{{inboxId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "inboxes", "{{inboxId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update inbox",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Soporte KIARO\",\n  \"channel\": \"ticket\",\n  \"application_id\": {{applicationId}},\n  \"enabled\": true,\n  \"csat_enabled\": false,\n  \"from\": \"\",\n  \"from_name_template\": \"\",\n  \"config\": {}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/inboxes/{{inboxId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "inboxes", "{{inboxId}}"]
+            }
+          }
+        },
+        {
+          "name": "Toggle inbox",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/inboxes/{{inboxId}}/toggle",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "inboxes", "{{inboxId}}", "toggle"]
+            }
+          }
+        },
+        {
+          "name": "Delete inbox",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/inboxes/{{inboxId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "inboxes", "{{inboxId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Gateway Portal",
+      "item": [
+        {
+          "name": "Create ticket",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-App-Id",
+                "value": "{{appId}}"
+              },
+              {
+                "key": "X-App-Key",
+                "value": "{{appKey}}"
+              },
+              {
+                "key": "X-External-User-Id",
+                "value": "{{externalUserId}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subject\": \"No puedo acceder a mi cuenta\",\n  \"content\": \"Hola, al intentar iniciar sesión me aparece un error 403.\",\n  \"email\": \"usuario@ejemplo.com\",\n  \"first_name\": \"Juan\",\n  \"last_name\": \"Pérez\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/portal/tickets",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "portal", "tickets"]
+            },
+            "description": "Crea un ticket para el external_user_id autenticado. Opcionalmente envía Idempotency-Key para evitar duplicados."
+          }
+        },
+        {
+          "name": "List tickets",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-App-Id",
+                "value": "{{appId}}"
+              },
+              {
+                "key": "X-App-Key",
+                "value": "{{appKey}}"
+              },
+              {
+                "key": "X-External-User-Id",
+                "value": "{{externalUserId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/portal/tickets?page=1&page_size=30",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "portal", "tickets"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "page_size",
+                  "value": "30"
+                }
+              ]
+            },
+            "description": "Lista los tickets del external_user_id para la aplicación autenticada."
+          }
+        },
+        {
+          "name": "Get ticket",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-App-Id",
+                "value": "{{appId}}"
+              },
+              {
+                "key": "X-App-Key",
+                "value": "{{appKey}}"
+              },
+              {
+                "key": "X-External-User-Id",
+                "value": "{{externalUserId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/portal/tickets/{{ticketUuid}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "portal", "tickets", "{{ticketUuid}}"]
+            },
+            "description": "Obtiene el detalle de un ticket específico incluyendo mensajes."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Media",
+      "item": [
+        {
+          "name": "Upload file",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "files",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/media",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "media"]
+            },
+            "description": "Sube un archivo. Requiere sesión de agente. Devuelve el objeto media con url."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Conversations (admin)",
+      "item": [
+        {
+          "name": "List all conversations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/conversations/all?page=1&page_size=30",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "conversations", "all"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "page_size",
+                  "value": "30"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get conversation",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/conversations/{{ticketUuid}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "conversations", "{{ticketUuid}}"]
+            }
+          }
+        },
+        {
+          "name": "Get conversation messages",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/conversations/{{ticketUuid}}/messages",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "conversations", "{{ticketUuid}}", "messages"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "adminUsername",
+      "value": "admin",
+      "type": "string"
+    },
+    {
+      "key": "adminPassword",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "applicationId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "inboxId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "appId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "appKey",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "externalUserId",
+      "value": "user-123",
+      "type": "string"
+    },
+    {
+      "key": "ticketUuid",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
