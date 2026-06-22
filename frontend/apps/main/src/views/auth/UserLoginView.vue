@@ -1,118 +1,108 @@
 <template>
   <AuthLayout>
-    <Card
-      class="bg-card box"
+    <div
+      class="auth-card animate-auth-slide-in-up"
       :class="{ 'animate-shake': shakeCard }"
       id="login-container"
       ref="cardRef"
     >
-      <CardContent class="p-6 space-y-5">
-        <div class="space-y-1 text-center">
-          <CardTitle class="text-2xl font-bold text-foreground">
-            {{ appSettingsStore.public_config?.['app.site_name'] || 'libredesk' }}
-          </CardTitle>
-          <p class="text-sm text-muted-foreground">{{ t('auth.signIn') }}</p>
+      <div class="auth-card__header">
+        <div class="auth-card__logo">
+          <img :src="logoUrl" alt="Heldesk" class="auth-card__logo-image" />
+        </div>
+        <p class="auth-card__subtitle">
+          Gestiona tus tickets de soporte de forma segura y eficiente con nuestra plataforma integral.
+        </p>
+      </div>
+
+      <div v-if="enabledOIDCProviders.length" class="auth-card__divider">
+        <span>{{ t('auth.orContinueWith') }}</span>
+      </div>
+
+      <div v-if="enabledOIDCProviders.length" class="auth-card__oidc">
+        <Button
+          v-for="oidcProvider in enabledOIDCProviders"
+          :key="oidcProvider.id"
+          variant="outline"
+          type="button"
+          @click="redirectToOIDC(oidcProvider)"
+          class="w-full"
+        >
+          <img
+            :src="oidcProvider.logo_url"
+            :alt="oidcProvider.name"
+            width="20"
+            v-if="oidcProvider.logo_url"
+          />
+          {{ oidcProvider.name }}
+        </Button>
+      </div>
+
+      <form @submit.prevent="loginAction" class="auth-card__form">
+        <div class="auth-card__field">
+          <Label for="email" class="auth-card__label">{{ t('globals.terms.email') }}</Label>
+          <Input
+            id="email"
+            type="text"
+            autocomplete="username"
+            v-model.trim="loginForm.email"
+            :class="{ 'auth-card__input--error': emailHasError }"
+            class="auth-card__input"
+          />
         </div>
 
-        <div v-if="enabledOIDCProviders.length" class="space-y-3">
-          <Button
-            v-for="oidcProvider in enabledOIDCProviders"
-            :key="oidcProvider.id"
-            variant="outline"
-            type="button"
-            @click="redirectToOIDC(oidcProvider)"
-            class="w-full"
-          >
-            <img
-              :src="oidcProvider.logo_url"
-              :alt="oidcProvider.name"
-              width="20"
-              v-if="oidcProvider.logo_url"
-            />
-            {{ oidcProvider.name }}
-          </Button>
-
-          <div class="relative">
-            <div class="absolute inset-0 flex items-center">
-              <span class="w-full border-t border-border"></span>
-            </div>
-            <div class="relative flex justify-center text-xs uppercase">
-              <span class="px-2 text-muted-foreground bg-card">{{ t('auth.orContinueWith') }}</span>
-            </div>
-          </div>
-        </div>
-
-        <form @submit.prevent="loginAction" class="space-y-3">
-          <div class="space-y-2">
-            <Label for="email" class="text-muted-foreground">{{
-              t('globals.terms.email')
-            }}</Label>
+        <div class="auth-card__field">
+          <Label for="password" class="auth-card__label">{{ t('globals.terms.password') }}</Label>
+          <div class="auth-card__input-wrapper">
             <Input
-              id="email"
-              type="text"
-              autocomplete="username"
-              v-model.trim="loginForm.email"
-              :class="{ 'border-destructive': emailHasError }"
+              id="password"
+              :type="showPassword ? 'text' : 'password'"
+              autocomplete="current-password"
+              v-model="loginForm.password"
+              :class="{ 'auth-card__input--error': passwordHasError }"
+              class="auth-card__input"
             />
-          </div>
-
-          <div class="space-y-2">
-            <Label for="password" class="text-muted-foreground">
-              {{ t('globals.terms.password') }}
-            </Label>
-            <div class="relative">
-              <Input
-                id="password"
-                :type="showPassword ? 'text' : 'password'"
-                autocomplete="current-password"
-                v-model="loginForm.password"
-                :class="{ 'border-destructive': passwordHasError }"
-                class="pr-10"
-              />
-              <button
-                type="button"
-                :aria-label="showPassword ? t('auth.hidePassword') : t('auth.showPassword')"
-                class="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
-                @click="showPassword = !showPassword"
-              >
-                <Eye v-if="!showPassword" class="w-5 h-5" />
-                <EyeOff v-else class="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-
-          <div class="flex items-center justify-between">
-            <router-link
-              to="/reset-password"
-              class="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            <button
+              type="button"
+              :aria-label="showPassword ? t('auth.hidePassword') : t('auth.showPassword')"
+              class="auth-card__toggle"
+              @click="showPassword = !showPassword"
             >
-              {{ t('auth.forgotPassword') }}
-            </router-link>
+              <Eye v-if="!showPassword" class="w-5 h-5" />
+              <EyeOff v-else class="w-5 h-5" />
+            </button>
           </div>
+        </div>
 
-          <Button
-            class="w-full"
-            :disabled="isLoading"
-            type="submit"
+        <div class="auth-card__options">
+          <router-link
+            to="/reset-password"
+            class="auth-card__link"
           >
-            <span v-if="isLoading" class="flex items-center justify-center">
-              <div
-                class="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin mr-3"
-              ></div>
-              {{ t('auth.loggingIn') }}
-            </span>
-            <span v-else>{{ t('auth.signInButton') }}</span>
-          </Button>
-        </form>
+            {{ t('auth.forgotPassword') }}
+          </router-link>
+        </div>
 
-        <Error
-          v-if="errorMessage"
-          :errorMessage="errorMessage"
-          :border="true"
-          class="w-full bg-destructive/10 text-destructive border-destructive/20 p-3 rounded text-sm"
-        />
-      </CardContent>
-    </Card>
+        <Button
+          class="auth-card__submit"
+          :disabled="isLoading"
+          type="submit"
+        >
+          <span v-if="isLoading" class="flex items-center justify-center">
+            <div class="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin mr-3"></div>
+            {{ t('auth.loggingIn') }}
+          </span>
+          <span v-else>{{ t('auth.signInButton') }}</span>
+        </Button>
+      </form>
+
+      <Error
+        v-if="errorMessage"
+        :errorMessage="errorMessage"
+        :border="true"
+        class="auth-card__error"
+      />
+    </div>
   </AuthLayout>
 </template>
 
@@ -125,7 +115,6 @@ import { validateEmail } from '@shared-ui/utils/string'
 import { useTemporaryClass } from '../../composables/useTemporaryClass'
 import { Button } from '@shared-ui/components/ui/button'
 import { Error } from '@shared-ui/components/ui/error'
-import { Card, CardContent, CardTitle } from '@shared-ui/components/ui/card'
 import { Input } from '@shared-ui/components/ui/input'
 import { Label } from '@shared-ui/components/ui/label'
 import { useEmitter } from '../../composables/useEmitter'
@@ -135,6 +124,7 @@ import { EMITTER_EVENTS } from '../../constants/emitterEvents.js'
 import { useAppSettingsStore } from '../../stores/appSettings'
 import AuthLayout from '@/layouts/auth/AuthLayout.vue'
 import { Eye, EyeOff } from 'lucide-vue-next'
+import logoUrl from '/images/logo-heldesk.svg?url'
 
 const emitter = useEmitter()
 const { t } = useI18n()

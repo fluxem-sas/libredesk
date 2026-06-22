@@ -1,21 +1,30 @@
 <template>
-  <div class="min-h-screen flex flex-col bg-secondary">
-    <main class="flex-1 flex items-start justify-center pt-[15vh] p-4">
-      <div class="w-full max-w-sm">
+  <div class="auth-layout animate-auth-fade-in">
+    <div class="auth-layout__visual">
+      <div class="auth-layout__visual-overlay"></div>
+      <div class="auth-layout__visual-logo">
+        <img
+          :src="logoUrl"
+          alt="Fluxem"
+          class="auth-layout__visual-logo-image"
+        />
+      </div>
+      <img
+        :src="isotypeUrl"
+        alt="Heldesk"
+        class="auth-layout__visual-image"
+      />
+    </div>
+
+    <div class="auth-layout__content">
+      <div class="auth-layout__container">
         <slot></slot>
       </div>
-    </main>
-    <div class="flex justify-center mb-6">
-      <a
-        href="https://libredesk.io/"
-        class="text-xs text-center text-muted-foreground"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Powered by libredesk
-      </a>
     </div>
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import isotypeUrl from '/images/login-isotype.svg?url'
+import logoUrl from '/images/logo-fluxem.svg?url'
+</script>

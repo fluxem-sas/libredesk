@@ -900,6 +900,13 @@
   "replyBox.contactEmailMissingDescription": "El correo electrónico del contacto ({email}) no figura en los campos «Para», «Copia» ni «Copia oculta». El contacto no recibirá esta respuesta.",
   "replyBox.emailAddresess": "Direcciones de correo electrónico separadas por coma",
   "replyBox.invalidEmailsIn": "Correo(s) electrónico(s) no válido(s) en",
+  "replyBox.requestInfo": "Solicitar info",
+  "replyBox.requestInfoEmpty": "Escribe el mensaje que quieres enviar como solicitud de información.",
+  "replyBox.requestInfoNoAttachments": "La solicitud de información no admite adjuntos del agente. Envía solo el mensaje de solicitud.",
+  "replyBox.requestInfoNoMacroActions": "La solicitud de información no se puede combinar con acciones de macro.",
+  "replyBox.requestInfoOnlyForTickets": "Esta acción solo está disponible para tickets del portal.",
+  "replyBox.requestInfoSent": "Solicitud enviada. El usuario ya puede responder desde el portal.",
+  "replyBox.requestInfoShortcutHint": "Atajo: Ctrl + Shift + I",
   "replyBox.removeBCC": "Eliminar BCC",
   "replyBox.sendAnyway": "Enviar de todos modos",
   "replyBox.toRequired": "Se requiere al menos un destinatario en el campo Para.",
@@ -1044,5 +1051,6 @@
   "widget.ipBlocked": "Acceso denegado",
   "widget.prechatForm.startChat": "Iniciar chat"
 }
+
 
 

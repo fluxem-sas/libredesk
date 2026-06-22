@@ -38,7 +38,17 @@
         <Smile class="h-4 w-4" />
       </Toggle>
     </div>
-    <div class="flex items-center">
+    <div class="flex items-center gap-2">
+      <Button
+        v-if="showRequestInfoButton"
+        variant="outline"
+        class="h-8 px-3"
+        @click="handleRequestInfo"
+        :disabled="!enableRequestInfo || isSending"
+        :title="$t('replyBox.requestInfoShortcutHint')"
+      >
+        {{ $t('replyBox.requestInfo') }}
+      </Button>
       <Button
         class="h-8 px-4 rounded-r-none"
         @click="handleSend"
@@ -107,8 +117,14 @@ defineProps({
   isFullscreen: Boolean,
   isSending: Boolean,
   enableSend: Boolean,
+  enableRequestInfo: Boolean,
   handleSend: Function,
+  handleRequestInfo: Function,
   handleSendAndSetStatus: Function,
+  showRequestInfoButton: {
+    type: Boolean,
+    default: false
+  },
   showSendButton: {
     type: Boolean,
     default: true
@@ -137,3 +153,4 @@ function onSelectEmoji(emoji) {
   emit('emojiSelect', emoji.i)
 }
 </script>
+

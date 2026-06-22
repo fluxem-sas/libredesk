@@ -190,7 +190,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['send', 'aiPromptSelected', 'mentionsChanged', 'filesDropped'])
+const emit = defineEmits(['send', 'requestInfo', 'aiPromptSelected', 'mentionsChanged', 'filesDropped'])
 
 const emitPrompt = (key) => emit('aiPromptSelected', key)
 
@@ -337,11 +337,17 @@ const editor = useEditor({
     handlePaste,
     handleDrop,
     handleKeyDown: (view, event) => {
-      if (event.ctrlKey && event.key.toLowerCase() === 'b') {
+      const hasModifier = event.ctrlKey || event.metaKey
+      if (hasModifier && event.key.toLowerCase() === 'b') {
         event.stopPropagation()
         return false
       }
-      if (event.ctrlKey && event.key === 'Enter') {
+      if (hasModifier && event.shiftKey && event.key.toLowerCase() === 'i') {
+        emit('requestInfo')
+        stopTyping()
+        return true
+      }
+      if (hasModifier && event.key === 'Enter') {
         emit('send')
         // Stop typing when sending
         stopTyping()
@@ -613,3 +619,4 @@ defineExpose({ focus, extractMentions })
   }
 }
 </style>
+

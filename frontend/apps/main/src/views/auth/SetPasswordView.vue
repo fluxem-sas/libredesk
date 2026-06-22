@@ -1,66 +1,57 @@
 <template>
   <AuthLayout>
-    <Card class="bg-card box">
-      <CardContent class="p-6 space-y-5">
-        <div class="space-y-1 text-center">
-          <CardTitle class="text-2xl font-bold text-foreground">{{
-            t('auth.setNewPassword')
-          }}</CardTitle>
-          <p class="text-sm text-muted-foreground">{{ t('auth.enterNewPasswordTwice') }}</p>
+    <div class="auth-card animate-auth-slide-in-up" id="set-password-container">
+      <div class="auth-card__header">
+        <div class="auth-card__logo">
+          <img :src="logoUrl" alt="Heldesk" class="auth-card__logo-image" />
+        </div>
+        <h1 class="auth-card__title">{{ t('auth.setNewPassword') }}</h1>
+        <p class="auth-card__subtitle">{{ t('auth.enterNewPasswordTwice') }}</p>
+      </div>
+
+      <form @submit.prevent="setPasswordAction" class="auth-card__form">
+        <div class="auth-card__field">
+          <Label for="password" class="auth-card__label">{{ t('auth.newPassword') }}</Label>
+          <Input
+            id="password"
+            type="password"
+            autocomplete="new-password"
+            v-model="passwordForm.password"
+            :class="{ 'auth-card__input--error': passwordHasError }"
+            class="auth-card__input"
+          />
         </div>
 
-        <form @submit.prevent="setPasswordAction" class="space-y-3">
-          <div class="space-y-2">
-            <Label for="password" class="text-muted-foreground">
-              {{
-                t('auth.newPassword')
-              }}
-            </Label>
-            <Input
-              id="password"
-              type="password"
-              autocomplete="new-password"
-              v-model="passwordForm.password"
-              :class="{ 'border-destructive': passwordHasError }"
-            />
-          </div>
+        <div class="auth-card__field">
+          <Label for="confirmPassword" class="auth-card__label">{{ t('auth.confirmPassword') }}</Label>
+          <Input
+            id="confirmPassword"
+            type="password"
+            autocomplete="new-password"
+            v-model="passwordForm.confirmPassword"
+            :class="{ 'auth-card__input--error': confirmPasswordHasError }"
+            class="auth-card__input"
+          />
+        </div>
 
-          <div class="space-y-2">
-            <Label for="confirmPassword" class="text-muted-foreground">
-              {{ t('auth.confirmPassword') }}
-            </Label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              autocomplete="new-password"
-              v-model="passwordForm.confirmPassword"
-              :class="{ 'border-destructive': confirmPasswordHasError }"
-            />
-          </div>
+        <Button class="auth-card__submit" :disabled="isLoading" type="submit">
+          <span v-if="isLoading" class="flex items-center justify-center">
+            <div
+              class="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin mr-3"
+            ></div>
+            {{ t('auth.settingPassword') }}
+          </span>
+          <span v-else>{{ t('auth.setNewPassword') }}</span>
+        </Button>
+      </form>
 
-          <Button
-            class="w-full"
-            :disabled="isLoading"
-            type="submit"
-          >
-            <span v-if="isLoading" class="flex items-center justify-center">
-              <div
-                class="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin mr-3"
-              ></div>
-              {{ t('auth.settingPassword') }}
-            </span>
-            <span v-else>{{ t('auth.setNewPassword') }}</span>
-          </Button>
-        </form>
-
-        <Error
-          v-if="errorMessage"
-          :errorMessage="errorMessage"
-          :border="true"
-          class="w-full bg-destructive/10 text-destructive border-destructive/20 p-3 rounded text-sm"
-        />
-      </CardContent>
-    </Card>
+      <Error
+        v-if="errorMessage"
+        :errorMessage="errorMessage"
+        :border="true"
+        class="auth-card__error"
+      />
+    </div>
   </AuthLayout>
 </template>
 
@@ -74,11 +65,11 @@ import { EMITTER_EVENTS } from '../../constants/emitterEvents.js'
 import { useTemporaryClass } from '../../composables/useTemporaryClass'
 import { Button } from '@shared-ui/components/ui/button'
 import { Error } from '@shared-ui/components/ui/error'
-import { Card, CardContent, CardTitle } from '@shared-ui/components/ui/card'
 import { Input } from '@shared-ui/components/ui/input'
 import { Label } from '@shared-ui/components/ui/label'
 import { useI18n } from 'vue-i18n'
 import AuthLayout from '@/layouts/auth/AuthLayout.vue'
+import logoUrl from '/images/logo-heldesk.svg?url'
 
 const { t } = useI18n()
 const errorMessage = ref('')

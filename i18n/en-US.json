@@ -996,6 +996,13 @@
   "replyBox.emailAddresess": "Email addresses separated by comma",
   "replyBox.invalidEmailsIn": "Invalid email(s) in",
   "replyBox.missingTagsDescription": "This conversation has no tags. Tagging helps with reporting and triage. You can still send without tagging.",
+  "replyBox.requestInfo": "Request info",
+  "replyBox.requestInfoEmpty": "Write the message you want to send as an information request.",
+  "replyBox.requestInfoNoAttachments": "Information requests do not support agent attachments. Send only the request message.",
+  "replyBox.requestInfoNoMacroActions": "Information requests cannot be combined with macro actions.",
+  "replyBox.requestInfoOnlyForTickets": "This action is only available for portal tickets.",
+  "replyBox.requestInfoSent": "Request sent. The user can now reply from the portal.",
+  "replyBox.requestInfoShortcutHint": "Shortcut: Ctrl + Shift + I",
   "replyBox.missingTagsTitle": "No tags on this conversation",
   "replyBox.removeBCC": "Remove BCC",
   "replyBox.sendAnyway": "Send anyway",
@@ -1142,5 +1149,6 @@
   "widget.ipBlocked": "Access denied",
   "widget.prechatForm.startChat": "Start chat"
 }
+
 
 

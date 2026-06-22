@@ -103,6 +103,7 @@
           v-model:mentions="mentions"
           @toggleFullscreen="isEditorFullscreen = !isEditorFullscreen"
           @send="processSend"
+          @requestInfo="processRequestInfo"
           @sendAndSetStatus="processSendAndSetStatus"
           @fileUpload="handleFileUpload"
           @fileDelete="handleFileDelete"
@@ -138,6 +139,7 @@
         v-model:mentions="mentions"
         @toggleFullscreen="isEditorFullscreen = !isEditorFullscreen"
         @send="processSend"
+        @requestInfo="processRequestInfo"
         @sendAndSetStatus="processSendAndSetStatus"
         @fileUpload="handleFileUpload"
         @fileDelete="handleFileDelete"
@@ -307,6 +309,100 @@ const updateProvider = async (values) => {
 const hasTextContent = computed(() => {
   return textContent.value.trim().length > 0
 })
+
+const processRequestInfo = async () => {
+  const conversation = conversationStore.current
+  if (!conversation || conversation.inbox_channel !== 'ticket') {
+    emitter.emit(EMITTER_EVENTS.SHOW_TOAST, {
+      variant: 'destructive',
+      description: t('replyBox.requestInfoOnlyForTickets')
+    })
+    return
+  }
+
+  const html = htmlContent.value
+  if (hasPendingInlineUpload(html)) return
+  if (!hasTextContent.value && !hasInlineImage(html)) {
+    emitter.emit(EMITTER_EVENTS.SHOW_TOAST, {
+      variant: 'destructive',
+      description: t('replyBox.requestInfoEmpty')
+    })
+    return
+  }
+  if (mediaFiles.value.length > 0) {
+    emitter.emit(EMITTER_EVENTS.SHOW_TOAST, {
+      variant: 'destructive',
+      description: t('replyBox.requestInfoNoAttachments')
+    })
+    return
+  }
+  if ((conversationStore.getMacro(MACRO_CONTEXT.REPLY)?.actions || []).length > 0) {
+    emitter.emit(EMITTER_EVENTS.SHOW_TOAST, {
+      variant: 'destructive',
+      description: t('replyBox.requestInfoNoMacroActions')
+    })
+    return
+  }
+
+  isEditorFullscreen.value = false
+  const convUUID = conversation.uuid
+  const savedContent = htmlContent.value
+  const savedTextContent = textContent.value
+  const author = {
+    id: userStore.userID,
+    first_name: userStore.firstName,
+    last_name: userStore.lastName,
+    avatar_url: userStore.avatar,
+    type: 'agent'
+  }
+
+  const tempUUID = conversationStore.addPendingMessage(
+    convUUID,
+    savedContent,
+    false,
+    author,
+    [],
+    savedTextContent,
+    { customer_reply_request: true }
+  )
+
+  htmlContent.value = ''
+
+  try {
+    isSending.value = true
+    const response = await api.requestCustomerReply(convUUID, {
+      message: savedContent,
+      allow_attachments: true,
+      max_messages: 1
+    })
+
+    if (response?.data?.data?.message) {
+      conversationStore.replacePendingMessage(convUUID, tempUUID, response.data.data.message)
+    }
+    if (conversationStore.current?.uuid === convUUID && response?.data?.data?.custom_attributes) {
+      conversationStore.current.custom_attributes = response.data.data.custom_attributes
+    }
+
+    clearDraft(currentDraftKey.value)
+    conversationStore.resetMacro(MACRO_CONTEXT.REPLY)
+    clearMediaFiles()
+    emailErrors.value = []
+    mentions.value = []
+
+    emitter.emit(EMITTER_EVENTS.SHOW_TOAST, {
+      description: t('replyBox.requestInfoSent')
+    })
+  } catch (error) {
+    conversationStore.removePendingMessage(convUUID, tempUUID)
+    htmlContent.value = savedContent
+    emitter.emit(EMITTER_EVENTS.SHOW_TOAST, {
+      variant: 'destructive',
+      description: handleHTTPError(error).message
+    })
+  } finally {
+    isSending.value = false
+  }
+}
 
 const processSend = async (skipContactEmailCheck = false, skipMissingTagsCheck = false, statusToSet = null) => {
   let hasMessageSendingErrored = false
@@ -557,3 +653,4 @@ watch(
   }
 )
 </script>
+

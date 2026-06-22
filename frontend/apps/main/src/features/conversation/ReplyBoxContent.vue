@@ -100,6 +100,7 @@
         :getSuggestions="getSuggestions"
         @aiPromptSelected="handleAiPromptSelected"
         @send="handleSend"
+        @requestInfo="handleRequestInfo"
         @mentionsChanged="handleMentionsChanged"
         @filesDropped="handleFilesDropped"
       />
@@ -129,7 +130,10 @@
       :handleFileUpload="handleFileUpload"
       :isSending="isSending"
       :enableSend="enableSend"
+      :enableRequestInfo="enableRequestInfo"
+      :showRequestInfoButton="showRequestInfoButton"
       :handleSend="handleSend"
+      :handleRequestInfo="handleRequestInfo"
       :handleSendAndSetStatus="handleSendAndSetStatus"
       @emojiSelect="handleEmojiSelect"
     />
@@ -240,6 +244,7 @@ const props = defineProps({
 const emit = defineEmits([
   'toggleFullscreen',
   'send',
+  'requestInfo',
   'sendAndSetStatus',
   'fileUpload',
   'inlineImageUpload',
@@ -279,6 +284,24 @@ const enableSend = computed(() => {
       props.uploadedFiles.length > 0) &&
     emailErrors.value.length === 0 &&
     !props.uploadingFiles.length && !props.isDraftLoading
+  )
+})
+
+const showRequestInfoButton = computed(() => {
+  return messageType.value === 'reply' && conversationStore.current?.inbox_channel === 'ticket'
+})
+
+const enableRequestInfo = computed(() => {
+  const html = htmlContent.value
+  return (
+    showRequestInfoButton.value &&
+    !hasPendingInlineUpload(html) &&
+    (textContent.value.trim().length > 0 || hasInlineImage(html)) &&
+    emailErrors.value.length === 0 &&
+    !props.uploadingFiles.length &&
+    !props.isDraftLoading &&
+    props.uploadedFiles.length === 0 &&
+    !(conversationStore.getMacro('reply')?.actions?.length > 0)
   )
 })
 
@@ -324,6 +347,11 @@ const handleSend = async () => {
   emit('send')
 }
 
+const handleRequestInfo = async () => {
+  if (!(await validateBeforeSend())) return
+  emit('requestInfo')
+}
+
 /**
  * Send the reply or private note and set conversation status
  */
@@ -357,7 +385,7 @@ const handleAiPromptSelected = (key) => {
 // Watch and update macro view based on message type this filters our macros.
 watch(
   messageType,
-  (newType, oldType) => {
+  (newType) => {
     if (newType === 'reply') {
       macroStore.setCurrentView('replying')
     } else if (newType === 'private_note') {
@@ -377,3 +405,4 @@ const focus = () => {
 }
 defineExpose({ focus })
 </script>
+

@@ -360,6 +360,12 @@ const sendMessage = (uuid, data) =>
       'Content-Type': 'application/json'
     }
   })
+const requestCustomerReply = (uuid, data) =>
+  http.post(`/api/v1/conversations/${uuid}/request-customer-reply`, data, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
 const getConversation = (uuid) => http.get(`/api/v1/conversations/${uuid}`, { abortOnRoute: true })
 const getConversationTranscript = (uuid) =>
   http.get(`/api/v1/conversations/${uuid}/transcript`, { responseType: 'blob' })
@@ -627,6 +633,7 @@ export default {
   deleteAutomationRule,
   createConversation,
   sendMessage,
+  requestCustomerReply,
   retryMessage,
   createUser,
   createInbox,
@@ -726,4 +733,5 @@ export default {
   deleteAllNotifications,
   getContactPageVisits
 }
+
 
