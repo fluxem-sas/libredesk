@@ -33,7 +33,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, ref, computed, watch } from 'vue'
 import api from '@/api'
 import ApplicationForm from '@/features/admin/applications/ApplicationForm.vue'
 import LoadingOverlay from '@/components/layout/LoadingOverlay.vue'
@@ -55,6 +55,7 @@ const emitter = useEmitter()
 const isLoading = ref(false)
 const formLoading = ref(false)
 const createdCredentials = ref(null)
+const gatewayCredentialsStorageKey = 'libredesk.gateway.credentials'
 
 const props = defineProps({
   id: {
@@ -89,12 +90,19 @@ const onSubmit = form.handleSubmit(async (values) => {
         gateway_app_id: data.gateway_app_id,
         gateway_api_key: data.gateway_api_key
       }
-      router.replace({
+      sessionStorage.setItem(
+        `${gatewayCredentialsStorageKey}:${data.id}`,
+        JSON.stringify(createdCredentials.value)
+      )
+      form.setValues({
+        ...values,
+        gateway_app_id: data.gateway_app_id,
+        gateway_api_key: data.gateway_api_key,
+        enabled: data.enabled
+      })
+      await router.replace({
         name: 'edit-application',
-        params: { id: data.id },
-        state: {
-          gatewayCredentials: createdCredentials.value
-        }
+        params: { id: data.id }
       })
     }
     emitter.emit(EMITTER_EVENTS.SHOW_TOAST, {
@@ -118,27 +126,62 @@ const breadcrumbLinks = [
   { path: '', label: props.id ? t('globals.messages.edit') : t('globals.messages.new') }
 ]
 
-onMounted(async () => {
-  const routerState = history.state?.gatewayCredentials
-  if (routerState) {
-    createdCredentials.value = routerState
-    // Clear the state so a refresh does not show it again.
-    history.replaceState({ ...history.state, gatewayCredentials: undefined }, '')
+const consumeStoredGatewayCredentials = (id) => {
+  const storageKey = `${gatewayCredentialsStorageKey}:${id}`
+  const rawValue = sessionStorage.getItem(storageKey)
+  if (!rawValue) {
+    return null
   }
 
-  if (props.id) {
-    try {
-      isLoading.value = true
-      const resp = await api.getApplication(props.id)
-      form.setValues(resp.data.data)
-    } catch (error) {
-      emitter.emit(EMITTER_EVENTS.SHOW_TOAST, {
-        variant: 'destructive',
-        description: handleHTTPError(error).message
+  sessionStorage.removeItem(storageKey)
+  try {
+    return JSON.parse(rawValue)
+  } catch {
+    return null
+  }
+}
+
+const loadApplication = async (id) => {
+  if (!id) return
+
+  try {
+    isLoading.value = true
+    const resp = await api.getApplication(id)
+    const storedCredentials = consumeStoredGatewayCredentials(id)
+    if (storedCredentials) {
+      createdCredentials.value = storedCredentials
+      form.setValues({
+        ...resp.data.data,
+        gateway_app_id: storedCredentials.gateway_app_id,
+        gateway_api_key: storedCredentials.gateway_api_key
       })
-    } finally {
-      isLoading.value = false
+      return
     }
+
+    form.setValues(resp.data.data)
+  } catch (error) {
+    emitter.emit(EMITTER_EVENTS.SHOW_TOAST, {
+      variant: 'destructive',
+      description: handleHTTPError(error).message
+    })
+  } finally {
+    isLoading.value = false
+  }
+}
+
+watch(
+  () => props.id,
+  async (id) => {
+    if (id) {
+      await loadApplication(id)
+    }
+  },
+  { immediate: true }
+)
+
+onMounted(() => {
+  if (!props.id) {
+    createdCredentials.value = null
   }
 })
 </script>

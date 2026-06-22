@@ -19,7 +19,6 @@
               <SelectValue :placeholder="$t('globals.terms.application')" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem :value="0">{{ $t('globals.terms.none') }}</SelectItem>
               <SelectItem v-for="application in availableApplications" :key="application.id" :value="application.id">
                 {{ application.name }}
               </SelectItem>
@@ -103,7 +102,15 @@ const props = defineProps({
 const schema = toTypedSchema(
   z.object({
     name: z.string().min(1, t('globals.messages.required')),
-    application_id: z.number().nullable().optional(),
+    application_id: z.preprocess(
+      (value) => {
+        if (value === null || value === undefined || value === '') {
+          return undefined
+        }
+        return Number(value)
+      },
+      z.number({ required_error: t('globals.messages.required') }).int().positive(t('globals.messages.required'))
+    ),
     enabled: z.boolean().optional().default(true)
   })
 )
@@ -112,7 +119,7 @@ const { values } = useForm({
   validationSchema: schema,
   initialValues: {
     name: props.initialValues.name || '',
-    application_id: props.initialValues.application_id || null,
+    application_id: props.initialValues.application_id ?? undefined,
     enabled: props.initialValues.enabled ?? true
   }
 })

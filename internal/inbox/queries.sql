@@ -17,7 +17,7 @@ SELECT id, uuid, created_at, updated_at, "name", application_id, deleted_at, cha
 SELECT id, uuid, created_at, updated_at, "name", application_id, deleted_at, channel, enabled, csat_enabled, prompt_tags_on_reply, config, "from", from_name_template, secret, linked_email_inbox_id FROM inboxes where uuid = $1 and deleted_at is NULL;
 
 -- name: get-inbox-by-application-and-channel
-SELECT id, uuid, created_at, updated_at, "name", application_id, deleted_at, channel, enabled, csat_enabled, prompt_tags_on_reply, config, "from", from_name_template, secret, linked_email_inbox_id FROM inboxes where application_id = $1 AND channel = $2 and deleted_at is NULL LIMIT 1;
+SELECT id, uuid, created_at, updated_at, "name", application_id, deleted_at, channel, enabled, csat_enabled, prompt_tags_on_reply, config, "from", from_name_template, secret, linked_email_inbox_id FROM inboxes where application_id = $1 AND channel = $2 and deleted_at is NULL ORDER BY updated_at DESC, id DESC LIMIT 1;
 
 -- name: update
 UPDATE inboxes

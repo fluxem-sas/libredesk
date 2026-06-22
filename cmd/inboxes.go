@@ -69,6 +69,9 @@ func handleCreateInbox(r *fastglue.Request) error {
 	if err := validateInbox(app, inbox); err != nil {
 		return sendErrorEnvelope(r, err)
 	}
+	if err := ensureTicketInboxUnique(app, inbox, 0); err != nil {
+		return sendErrorEnvelope(r, err)
+	}
 
 	createdInbox, err := app.inbox.Create(inbox)
 	if err != nil {
@@ -111,6 +114,9 @@ func handleUpdateInbox(r *fastglue.Request) error {
 	}
 
 	if err := validateInbox(app, inbox); err != nil {
+		return sendErrorEnvelope(r, err)
+	}
+	if err := ensureTicketInboxUnique(app, inbox, id); err != nil {
 		return sendErrorEnvelope(r, err)
 	}
 
@@ -207,6 +213,9 @@ func validateInbox(app *App, inbox imodels.Inbox) error {
 	}
 	if inbox.Channel != imodels.ChannelEmail && inbox.Channel != imodels.ChannelLiveChat && inbox.Channel != imodels.ChannelTicket {
 		return envelope.NewError(envelope.InputError, app.i18n.T("validation.invalidValue"), nil)
+	}
+	if inbox.Channel == imodels.ChannelTicket && (!inbox.ApplicationID.Valid || inbox.ApplicationID.Int <= 0) {
+		return envelope.NewError(envelope.InputError, app.i18n.Ts("globals.messages.required", "name", app.i18n.T("globals.terms.application")), nil)
 	}
 	if inbox.ApplicationID.Valid && inbox.ApplicationID.Int > 0 {
 		if _, err := app.application.Get(inbox.ApplicationID.Int); err != nil {
@@ -348,6 +357,26 @@ func validateInbox(app *App, inbox imodels.Inbox) error {
 			return err
 		}
 	}
+	return nil
+}
+
+func ensureTicketInboxUnique(app *App, inbox imodels.Inbox, currentID int) error {
+	if inbox.Channel != imodels.ChannelTicket || !inbox.ApplicationID.Valid || inbox.ApplicationID.Int <= 0 {
+		return nil
+	}
+
+	existing, err := app.inbox.GetByApplicationAndChannel(inbox.ApplicationID.Int, inbox.Channel)
+	if err != nil {
+		if envErr, ok := err.(envelope.Error); ok && envErr.ErrorType == envelope.NotFoundError {
+			return nil
+		}
+		return err
+	}
+
+	if existing.ID != currentID {
+		return envelope.NewError(envelope.ConflictError, app.i18n.T("globals.messages.errorAlreadyExists"), nil)
+	}
+
 	return nil
 }
 

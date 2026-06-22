@@ -130,6 +130,11 @@ CREATE TABLE inboxes (
 	CONSTRAINT constraint_inboxes_on_name CHECK (length("name") <= 140)
 );
 CREATE INDEX index_inboxes_on_application_id ON inboxes (application_id);
+CREATE UNIQUE INDEX idx_unique_ticket_inbox_per_application
+	ON inboxes(application_id)
+	WHERE deleted_at IS NULL
+	  AND application_id IS NOT NULL
+	  AND channel = 'ticket';
 
 DROP TABLE IF EXISTS teams CASCADE;
 CREATE TABLE teams (
@@ -975,4 +980,6 @@ VALUES (
   '',
   true
 );
+
+
 
