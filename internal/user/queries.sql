@@ -41,6 +41,8 @@ SELECT
     u.phone_number_country_code,
     u.phone_number,
     u.country,
+    u.meta,
+    u.custom_attributes,
     u.api_key,
     u.api_key_last_used_at,
     u.external_user_id,
@@ -293,6 +295,8 @@ SELECT
     u.phone_number_country_code,
     u.phone_number,
     u.country,
+    u.meta,
+    u.custom_attributes,
     u.api_key,
     u.api_key_last_used_at,
     u.api_secret,
@@ -420,3 +424,4 @@ SELECT
 
 -- name: get-user-ids-by-role
 SELECT user_id FROM user_roles WHERE role_id = $1;
+
