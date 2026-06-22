@@ -1,5 +1,7 @@
 <template>
   <div class="auth-layout animate-auth-fade-in">
+    <AuthPreferences />
+
     <div class="auth-layout__visual">
       <div class="auth-layout__visual-overlay"></div>
       <div class="auth-layout__visual-logo">
@@ -11,7 +13,7 @@
       </div>
       <img
         :src="isotypeUrl"
-        alt="Heldesk"
+        alt="FluxemDesk"
         class="auth-layout__visual-image"
       />
     </div>
@@ -27,4 +29,5 @@
 <script setup>
 import isotypeUrl from '/images/login-isotype.svg?url'
 import logoUrl from '/images/logo-fluxem.svg?url'
+import AuthPreferences from '@/components/auth/AuthPreferences.vue'
 </script>

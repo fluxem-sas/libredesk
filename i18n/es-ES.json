@@ -398,6 +398,7 @@
   "auth.settingPassword": "Estableciendo contraseña...",
   "auth.signIn": "Inicia sesión en tu cuenta",
   "auth.signInButton": "Iniciar sesión",
+  "auth.loginSubtitle": "Gestiona tus tickets de soporte de forma segura y eficiente con nuestra plataforma integral.",
   "automation.deletionConfirmation": "Esta acción no se puede deshacer. Se eliminará permanentemente esta regla de automatización.",
   "automation.editRule": "Editar regla",
   "automation.newRule": "Nueva regla",

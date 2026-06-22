@@ -8,11 +8,9 @@
     >
       <div class="auth-card__header">
         <div class="auth-card__logo">
-          <img :src="logoUrl" alt="Heldesk" class="auth-card__logo-image" />
+          <img :src="logoUrl" alt="FluxemDesk" class="auth-card__logo-image" />
         </div>
-        <p class="auth-card__subtitle">
-          Gestiona tus tickets de soporte de forma segura y eficiente con nuestra plataforma integral.
-        </p>
+        <p class="auth-card__subtitle">{{ t('auth.loginSubtitle') }}</p>
       </div>
 
       <div v-if="enabledOIDCProviders.length" class="auth-card__divider">
@@ -84,7 +82,7 @@
         </div>
 
         <Button
-          class="auth-card__submit"
+          class="auth-card__submit text-white"
           :disabled="isLoading"
           type="submit"
         >
@@ -124,7 +122,7 @@ import { EMITTER_EVENTS } from '../../constants/emitterEvents.js'
 import { useAppSettingsStore } from '../../stores/appSettings'
 import AuthLayout from '@/layouts/auth/AuthLayout.vue'
 import { Eye, EyeOff } from 'lucide-vue-next'
-import logoUrl from '/images/logo-heldesk.svg?url'
+import logoUrl from '/images/logo-fluxemdesk.svg?url'
 
 const emitter = useEmitter()
 const { t } = useI18n()

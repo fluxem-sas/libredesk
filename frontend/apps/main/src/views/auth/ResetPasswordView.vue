@@ -3,7 +3,7 @@
     <div class="auth-card animate-auth-slide-in-up" id="reset-password-container">
       <div class="auth-card__header">
         <div class="auth-card__logo">
-          <img :src="logoUrl" alt="Heldesk" class="auth-card__logo-image" />
+          <img :src="logoUrl" alt="FluxemDesk" class="auth-card__logo-image" />
         </div>
         <h1 class="auth-card__title">{{ t('auth.resetPassword') }}</h1>
         <p class="auth-card__subtitle">{{ t('auth.enterEmailForReset') }}</p>
@@ -63,7 +63,7 @@ import { useEmitter } from '../../composables/useEmitter'
 import { Label } from '@shared-ui/components/ui/label'
 import { useI18n } from 'vue-i18n'
 import AuthLayout from '@/layouts/auth/AuthLayout.vue'
-import logoUrl from '/images/logo-heldesk.svg?url'
+import logoUrl from '/images/logo-fluxemdesk.svg?url'
 
 const errorMessage = ref('')
 const { t } = useI18n()

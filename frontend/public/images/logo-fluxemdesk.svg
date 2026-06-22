@@ -1,27 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 80" fill="none" role="img" aria-label="Heldesk">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 80" fill="none" role="img" aria-label="FluxemDesk">
   <defs>
-    <linearGradient id="heldeskGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="fluxemdeskGradient" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#9f79b4"/>
       <stop offset="50%" stop-color="#6e3a8f"/>
       <stop offset="100%" stop-color="#552569"/>
     </linearGradient>
   </defs>
 
-  <rect x="8" y="14" width="56" height="52" rx="10" fill="url(#heldeskGradient)" opacity="0.15"/>
+  <rect x="8" y="14" width="56" height="52" rx="10" fill="url(#fluxemdeskGradient)" opacity="0.15"/>
   <path
     d="M20 24 H52 C54.2 24 56 25.8 56 28 V34 C53.8 34 52 35.8 52 38 C52 40.2 53.8 42 56 42 V48 C56 50.2 54.2 52 52 52 H20 C17.8 52 16 50.2 16 48 V42 C18.2 42 20 40.2 20 38 C20 35.8 18.2 34 16 34 V28 C16 25.8 17.8 24 20 24 Z"
-    fill="url(#heldeskGradient)"
+    fill="url(#fluxemdeskGradient)"
   />
   <line x1="28" y1="34" x2="44" y2="34" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/>
   <line x1="28" y1="42" x2="40" y2="42" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
 
   <text
     x="84"
-    y="52"
+    y="38"
     font-family="'Segoe UI', system-ui, sans-serif"
-    font-size="38"
+    font-size="26"
     font-weight="700"
     letter-spacing="-0.03em"
-    fill="#212b36"
-  >Heldesk</text>
+    fill="currentColor"
+  >Fluxem</text>
+  <text
+    x="84"
+    y="62"
+    font-family="'Segoe UI', system-ui, sans-serif"
+    font-size="22"
+    font-weight="600"
+    letter-spacing="-0.02em"
+    fill="url(#fluxemdeskGradient)"
+  >Desk</text>
 </svg>

@@ -427,6 +427,7 @@
   "auth.showPassword": "Show password",
   "auth.signIn": "Sign in to your account",
   "auth.signInButton": "Sign in",
+  "auth.loginSubtitle": "Manage your support tickets securely and efficiently with our integrated platform.",
   "automation.deletionConfirmation": "This action cannot be undone. This will permanently delete this automation rule.",
   "automation.editRule": "Edit rule",
   "automation.newRule": "New rule",

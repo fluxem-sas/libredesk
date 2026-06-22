@@ -16,11 +16,22 @@ const setFavicon = (url) => {
   link.href = url
 }
 
+const AUTH_LOCALE_KEY = 'preferred-locale'
+const AUTH_SUPPORTED_LOCALES = ['es-ES', 'en-US']
+
 async function initApp () {
   const config = (await api.getConfig()).data.data
   const emitter = mitt()
-  const lang = config['app.lang'] || 'en-US'
-  const langMessages = await api.getLanguage(lang)
+  const serverLang = config['app.lang'] || 'en-US'
+  const savedLocale = localStorage.getItem(AUTH_LOCALE_KEY)
+  const lang =
+    savedLocale && AUTH_SUPPORTED_LOCALES.includes(savedLocale) ? savedLocale : serverLang
+
+  const otherLang = lang === 'es-ES' ? 'en-US' : 'es-ES'
+  const [langMessages, otherLangMessages] = await Promise.all([
+    api.getLanguage(lang),
+    api.getLanguage(otherLang)
+  ])
 
   // Set favicon.
   if (config['app.favicon_url'])
@@ -32,7 +43,8 @@ async function initApp () {
     locale: lang,
     fallbackLocale: 'en-US',
     messages: {
-      [lang]: langMessages.data
+      [lang]: langMessages.data,
+      [otherLang]: otherLangMessages.data
     }
   }
 

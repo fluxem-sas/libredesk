@@ -3,7 +3,7 @@
     <div class="auth-card animate-auth-slide-in-up" id="set-password-container">
       <div class="auth-card__header">
         <div class="auth-card__logo">
-          <img :src="logoUrl" alt="Heldesk" class="auth-card__logo-image" />
+          <img :src="logoUrl" alt="FluxemDesk" class="auth-card__logo-image" />
         </div>
         <h1 class="auth-card__title">{{ t('auth.setNewPassword') }}</h1>
         <p class="auth-card__subtitle">{{ t('auth.enterNewPasswordTwice') }}</p>
@@ -69,7 +69,7 @@ import { Input } from '@shared-ui/components/ui/input'
 import { Label } from '@shared-ui/components/ui/label'
 import { useI18n } from 'vue-i18n'
 import AuthLayout from '@/layouts/auth/AuthLayout.vue'
-import logoUrl from '/images/logo-heldesk.svg?url'
+import logoUrl from '/images/logo-fluxemdesk.svg?url'
 
 const { t } = useI18n()
 const errorMessage = ref('')
