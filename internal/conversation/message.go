@@ -553,6 +553,15 @@ func (m *Manager) QueueReply(media []mmodels.Media, inboxID, senderID, contactID
 		return models.Message{}, envelope.NewError(envelope.InputError, m.i18n.T("status.disabledInbox"), nil)
 	}
 
+	// Ticket inboxes have no outbound transport; post directly to conversation history.
+	if inboxRecord.Channel == inbox.ChannelTicket {
+		meta := map[string]any{}
+		for k, v := range metaMap {
+			meta[k] = v
+		}
+		return m.CreateAgentPublicMessage(media, senderID, conversationUUID, content, meta)
+	}
+
 	var sourceID string
 	switch inboxRecord.Channel {
 	case inbox.ChannelEmail:
