@@ -807,7 +807,9 @@ export const useConversationStore = defineStore('conversation', () => {
     if (!messages.data.hasMessage(message.conversation_uuid, message.uuid)) {
       const echoId = message.echo_id
       if (echoId && messages.data.hasMessage(message.conversation_uuid, echoId)) {
-        messages.data.updateMessage(message.conversation_uuid, echoId, { uuid: message.uuid })
+        const updates = { uuid: message.uuid }
+        if (message.status) updates.status = message.status
+        messages.data.updateMessage(message.conversation_uuid, echoId, updates)
         incrementMessageVersion()
         updateAssigneeLastSeen(message.conversation_uuid)
         return
@@ -897,10 +899,14 @@ export const useConversationStore = defineStore('conversation', () => {
   }
 
   function replacePendingMessage (conversationUUID, tempUUID, realMessage) {
-    if (messages.data.hasMessage(conversationUUID, realMessage.uuid)) {
-      messages.data.removeMessage(conversationUUID, tempUUID)
-    } else {
+    if (messages.data.hasMessage(conversationUUID, tempUUID)) {
       messages.data.updateMessage(conversationUUID, tempUUID, realMessage)
+    } else if (realMessage.uuid && messages.data.hasMessage(conversationUUID, realMessage.uuid)) {
+      // WS echo_id may have already swapped the pending UUID.
+      messages.data.updateMessage(conversationUUID, realMessage.uuid, realMessage)
+    } else if (realMessage.uuid) {
+      messages.data.removeMessage(conversationUUID, tempUUID)
+      messages.data.addMessage(conversationUUID, realMessage)
     }
     incrementMessageVersion()
   }

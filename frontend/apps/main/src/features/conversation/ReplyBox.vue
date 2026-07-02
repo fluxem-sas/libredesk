@@ -521,8 +521,8 @@ const processSend = async (skipContactEmailCheck = false, skipMissingTagsCheck =
         echo_id: isPrivate ? '' : tempUUID
       })
 
-      // Private notes and ticket public messages are persisted immediately.
-      if ((isPrivate || conversationStore.current.inbox_channel === 'ticket') && response?.data?.data) {
+      // Replace optimistic message when the API returns the persisted record.
+      if (response?.data?.data) {
         conversationStore.replacePendingMessage(convUUID, tempUUID, response.data.data)
       }
     } catch (error) {

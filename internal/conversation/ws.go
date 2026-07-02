@@ -28,6 +28,7 @@ func (m *Manager) BroadcastNewMessage(message *cmodels.Message, conv *cmodels.Co
 		"conversation_uuid": message.ConversationUUID,
 		"uuid":              message.UUID,
 		"type":              message.Type,
+		"status":            message.Status,
 		"preview":           preview,
 		"created_at":        message.CreatedAt.Format(time.RFC3339),
 		"sender_type":       message.SenderType,
